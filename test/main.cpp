@@ -6,6 +6,7 @@
 #include <resource_chunk.hpp>
 
 #include <parallel_resource_loader.hpp>
+#include <parallel_resource_chunk.hpp>
 
 #include <SDL_image.h>
 
@@ -65,7 +66,7 @@ int main(int argc, char **argv) {
 
   app.run({
     .on_init = [&app]() {
-      sweet::basic_parallel_resource_loader<texture> _ploader {
+      sweet::basic_parallel_resource_chunk<texture> _ploader {
         std::make_shared<texture>(app.renderer),
         {
           { "1", std::make_shared<texture>(app.renderer) },
