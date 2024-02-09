@@ -21,37 +21,68 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_COMMON_COLOR_HPP
-#define _LIBSWEET_COMMON_COLOR_HPP
+#ifndef _LIBSWEET_RESOURCE_RESOURCE_LOADER_HPP
+#define _LIBSWEET_RESOURCE_RESOURCE_LOADER_HPP
 
-#include <cstdint>
+#include <string>
+#include <memory>
+#include <vector>
+#include <expected>
+#include <type_traits>
+#include <unordered_map>
+
+#include "resource.hpp"
 
 namespace sweet {
-struct color {
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-  uint8_t a;
-
-  color()
-    noexcept : r{ }, g{ }, b{ }, a{ 255 } {
+template <typename Type>
+class basic_resource_loader {
+public:
+  basic_resource_loader(
+    const std::shared_ptr<Type> &empty,
+    const std::unordered_map<std::string, std::shared_ptr<Type>> resources = { }
+  ) noexcept : _is_loaded{ false },
+    _empty{ empty },
+    _resources{ resources } {
   }
 
-  color(
-    uint8_t r,
-    uint8_t g,
-    uint8_t b,
-    uint8_t a = 255
-  ) noexcept : r{ r }, g{ g }, b{ b }, a{ a } {
+  std::expected<void, std::vector<std::string>> load() noexcept {
+    if(_is_loaded)
+      return{ };
+
+    std::vector<std::string> errors{ };
+    for(auto const &[key, value] : _resources) {
+      auto result = value->load();
+      if(!result)
+        errors.push_back(result.error());
+    }
+    _is_loaded = true;
+
+    if(!errors.empty())
+      return std::unexpected{ errors };
+    return{ };
   }
 
-  color &set_r(uint8_t r) noexcept;
-  color &set_g(uint8_t g) noexcept;
-  color &set_b(uint8_t b) noexcept;
-  color &set_a(uint8_t a) noexcept;
+  std::expected<void, std::vector<std::string>> unload() noexcept {
+    if(!_is_loaded)
+      return{ };
 
-  color &set_hex_argb(uint32_t color) noexcept;
-  color &set_hex_rgba(uint32_t color) noexcept;
+    std::vector<std::string> errors{ };
+    for(auto const &[key, value] : _resources) {
+      auto result = value->load();
+      if(!result)
+        errors.push_back(result.error());
+    }
+
+    if(!errors.empty())
+      return std::unexpected{ errors };
+    return{ };
+  }
+
+private:
+  bool _is_loaded;
+
+  std::shared_ptr<Type> _empty;
+  std::unordered_map<std::string, std::shared_ptr<Type>> _resources;
 };
 }
 

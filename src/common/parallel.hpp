@@ -21,37 +21,59 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_COMMON_COLOR_HPP
-#define _LIBSWEET_COMMON_COLOR_HPP
+#ifndef _LIBSWEET_COMMON_PARALLEL_HPP
+#define _LIBSWEET_COMMON_PARALLEL_HPP
 
-#include <cstdint>
+#include <vector>
+#include <future>
+#include <thread>
+#include <functional>
 
 namespace sweet {
-struct color {
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-  uint8_t a;
+template <typename ReturnType>
+class parallel {
+using rtype_function = std::function<ReturnType()>;
+using rtype_future = std::future<ReturnType>;
 
-  color()
-    noexcept : r{ }, g{ }, b{ }, a{ 255 } {
+public:
+  parallel(
+    const std::launch policy,
+    const std::vector<rtype_function> &functions
+  ) noexcept {
+    for(auto &func : functions)
+      _futures.push_back(std::async(policy, func));
   }
 
-  color(
-    uint8_t r,
-    uint8_t g,
-    uint8_t b,
-    uint8_t a = 255
-  ) noexcept : r{ r }, g{ g }, b{ b }, a{ a } {
+  std::vector<ReturnType> stand_by() noexcept {
+    std::vector<ReturnType> result{ };
+    for(auto &future : _futures)
+      result.push_back(future.get());
+    return result;
   }
 
-  color &set_r(uint8_t r) noexcept;
-  color &set_g(uint8_t g) noexcept;
-  color &set_b(uint8_t b) noexcept;
-  color &set_a(uint8_t a) noexcept;
+private:
+  std::vector<rtype_future> _futures;
+};
 
-  color &set_hex_argb(uint32_t color) noexcept;
-  color &set_hex_rgba(uint32_t color) noexcept;
+template <>
+class parallel<void> {
+using rtype_function = std::function<void()>;
+
+public:
+  parallel(
+    const std::vector<rtype_function> &functions
+  ) noexcept {
+    for(auto &func : functions)
+      _threads.emplace_back(func);
+  }
+
+  void stand_by() noexcept {
+    for(auto &thread: _threads)
+      thread.join();
+  }
+
+private:
+  std::vector<std::thread> _threads;
 };
 }
 

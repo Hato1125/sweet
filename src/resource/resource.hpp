@@ -21,37 +21,18 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_COMMON_COLOR_HPP
-#define _LIBSWEET_COMMON_COLOR_HPP
+#ifndef _LIBSWEET_RESOURCE_RESOURCE_HPP
+#define _LIBSWEET_RESOURCE_RESOURCE_HPP
 
-#include <cstdint>
+#include <string>
+#include <expected>
 
 namespace sweet {
-struct color {
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-  uint8_t a;
-
-  color()
-    noexcept : r{ }, g{ }, b{ }, a{ 255 } {
-  }
-
-  color(
-    uint8_t r,
-    uint8_t g,
-    uint8_t b,
-    uint8_t a = 255
-  ) noexcept : r{ r }, g{ g }, b{ b }, a{ a } {
-  }
-
-  color &set_r(uint8_t r) noexcept;
-  color &set_g(uint8_t g) noexcept;
-  color &set_b(uint8_t b) noexcept;
-  color &set_a(uint8_t a) noexcept;
-
-  color &set_hex_argb(uint32_t color) noexcept;
-  color &set_hex_rgba(uint32_t color) noexcept;
+struct resource {
+  // NOTE: Resourceはスレッドセーフで設計必須
+  virtual std::expected<void, std::string> load() noexcept = 0;
+  virtual std::expected<void, std::string> unload() noexcept = 0;
+  virtual std::expected<void, std::string> release() noexcept = 0;
 };
 }
 
