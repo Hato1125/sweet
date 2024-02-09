@@ -21,8 +21,8 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_RESOURCE_RESOURCE_LOADER_HPP
-#define _LIBSWEET_RESOURCE_RESOURCE_LOADER_HPP
+#ifndef _LIBSWEET_RESOURCE_RESOURCE_CHUNK_HPP
+#define _LIBSWEET_RESOURCE_RESOURCE_CHUNK_HPP
 
 #include <string>
 #include <memory>
@@ -35,9 +35,9 @@
 
 namespace sweet {
 template <typename Type>
-class basic_resource_loader {
+class basic_resource_chunk {
 public:
-  basic_resource_loader(
+  basic_resource_chunk(
     const std::shared_ptr<Type> &empty,
     const std::unordered_map<std::string, std::shared_ptr<Type>> resources = { }
   ) noexcept : _is_loaded{ false },
@@ -73,6 +73,22 @@ public:
         errors.push_back(result.error());
     }
     _resources.clear();
+
+    if(!errors.empty())
+      return std::unexpected{ errors };
+    return{ };
+  }
+
+  std::expected<void, std::vector<std::string>> release() noexcept {
+    if(!_is_loaded)
+      return{ };
+
+    std::vector<std::string> errors{ };
+    for(auto const &[key, value] : _resources) {
+      auto result = value->release();
+      if(!result)
+        errors.push_back(result.error());
+    }
 
     if(!errors.empty())
       return std::unexpected{ errors };
