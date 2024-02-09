@@ -31,10 +31,10 @@
 
 #include <SDL_render.h>
 
-#include <color.hpp>
-#include <point.hpp>
-#include <size.hpp>
-#include <rect.hpp>
+#include "color.hpp"
+#include "point.hpp"
+#include "size.hpp"
+#include "rect.hpp"
 
 #include "window.hpp"
 

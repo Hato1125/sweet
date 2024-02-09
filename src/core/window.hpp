@@ -30,9 +30,9 @@
 
 #include <SDL_video.h>
 
-#include <point.hpp>
-#include <size.hpp>
-#include <rect.hpp>
+#include "point.hpp"
+#include "size.hpp"
+#include "rect.hpp"
 
 namespace sweet {
 class window {
