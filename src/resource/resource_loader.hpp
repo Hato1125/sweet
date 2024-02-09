@@ -89,7 +89,7 @@ public:
     return _is_loaded;
   }
 
-protected:
+private:
   bool _is_loaded;
 
   std::shared_ptr<Type> _empty;

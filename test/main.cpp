@@ -5,6 +5,8 @@
 #include <resource_loader.hpp>
 #include <resource_chunk.hpp>
 
+#include <parallel_resource_loader.hpp>
+
 #include <SDL_image.h>
 
 class texture : sweet::resource {
@@ -63,6 +65,27 @@ int main(int argc, char **argv) {
 
   app.run({
     .on_init = [&app]() {
+      sweet::basic_parallel_resource_loader<texture> _ploader {
+        std::make_shared<texture>(app.renderer),
+        {
+          { "1", std::make_shared<texture>(app.renderer) },
+          { "2", std::make_shared<texture>(app.renderer) },
+          { "3", std::make_shared<texture>(app.renderer) },
+          { "4", std::make_shared<texture>(app.renderer) },
+          { "5", std::make_shared<texture>(app.renderer) },
+          { "6", std::make_shared<texture>(app.renderer) },
+          { "7", std::make_shared<texture>(app.renderer) },
+          { "8", std::make_shared<texture>(app.renderer) },
+        }
+      };
+
+      _ploader.load();
+      auto presult = _ploader.load();
+      if(!presult) {
+        for(const auto err : presult.error())
+          std::cout << err << std::endl;
+      }
+
       sweet::basic_resource_loader<texture> _loader {
         std::make_shared<texture>(app.renderer),
         {
