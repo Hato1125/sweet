@@ -3,6 +3,7 @@
 
 #include <app.hpp>
 #include <resource_loader.hpp>
+#include <resource_chunk.hpp>
 
 #include <SDL_image.h>
 

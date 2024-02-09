@@ -95,6 +95,12 @@ public:
     return{ };
   }
 
+  std::shared_ptr<Type> get(const std::string &name) noexcept {
+    if(_resources.contains(name))
+      return _resources[name];
+    return _empty;
+  }
+
   bool is_loaded() const noexcept {
     return _is_loaded;
   }
