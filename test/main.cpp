@@ -1,13 +1,10 @@
 #include <mutex>
 #include <iostream>
 
+#include <resource.hpp>
+#include <resource_bundle.hpp>
+
 #include <app.hpp>
-#include <resource_loader.hpp>
-#include <resource_chunk.hpp>
-
-#include <parallel_resource_loader.hpp>
-#include <parallel_resource_chunk.hpp>
-
 #include <SDL_image.h>
 
 class texture : sweet::resource {
@@ -25,6 +22,7 @@ public:
 
     if(!_texture)
       return std::unexpected{ "よみこみしっぱい" };
+    std::cout << "よみこみせいこう\n";
 
     return{ };
   }
@@ -32,6 +30,7 @@ public:
   std::expected<void, std::string> unload() noexcept override {
     if(!_texture)
       return std::unexpected{ "はきするてくすちゃがねえ" };
+    std::cout << "はきせいこう\n";
     return{ };
   }
 
@@ -66,39 +65,34 @@ int main(int argc, char **argv) {
 
   app.run({
     .on_init = [&app]() {
-      sweet::basic_parallel_resource_chunk<texture> _ploader {
+      std::cout << "loading...\n";
+      sweet::resource_bundle<texture> bundle {
         std::make_shared<texture>(app.renderer),
         {
-          { "1", std::make_shared<texture>(app.renderer) },
-          { "2", std::make_shared<texture>(app.renderer) },
-          { "3", std::make_shared<texture>(app.renderer) },
-          { "4", std::make_shared<texture>(app.renderer) },
-          { "5", std::make_shared<texture>(app.renderer) },
-          { "6", std::make_shared<texture>(app.renderer) },
-          { "7", std::make_shared<texture>(app.renderer) },
-          { "8", std::make_shared<texture>(app.renderer) },
-        }
-      };
-
-      _ploader.load();
-      auto presult = _ploader.load();
-      if(!presult) {
-        for(const auto err : presult.error())
-          std::cout << err << std::endl;
-      }
-
-      sweet::basic_resource_loader<texture> _loader {
-        std::make_shared<texture>(app.renderer),
-        {
-          { "TEST0", std::make_shared<texture>(app.renderer) },
           { "TEST1", std::make_shared<texture>(app.renderer) },
           { "TEST2", std::make_shared<texture>(app.renderer) },
+          { "TEST3", std::make_shared<texture>(app.renderer) },
+          { "TEST4", std::make_shared<texture>(app.renderer) },
+          { "TEST5", std::make_shared<texture>(app.renderer) },
         }
       };
-      auto result = _loader.load();
-      if(!result) {
-        for(const auto err : result.error())
-          std::cout << err << std::endl;
+
+      // load
+      {
+        auto results = bundle.load();
+        if(!results) {
+          for(const auto error : results.error())
+            std::cout << error << std::endl;
+        }
+      }
+
+      // unload
+      {
+        auto results = bundle.unload();
+        if(!results) {
+          for(const auto error : results.error())
+            std::cout << error << std::endl;
+        }
       }
     },
     .on_event = [&app](SDL_Event &event) {
