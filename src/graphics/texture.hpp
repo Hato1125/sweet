@@ -104,6 +104,11 @@ public:
   [[nodiscard]]
   SDL_Texture *get_sdl_texture() const noexcept;
 
+  bool operator ==(const texture &texture) const noexcept;
+  bool operator !=(const texture &texture) const noexcept;
+
+  explicit operator bool() const noexcept;
+
 private:
   sweet::renderer &_renderer;
 

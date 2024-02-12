@@ -244,6 +244,18 @@ SDL_Texture *texture::get_sdl_texture() const noexcept {
   return _sdl_texture.get();
 }
 
+bool texture::operator ==(const texture &texture) const noexcept {
+  return get_sdl_texture() == texture.get_sdl_texture();
+}
+
+bool texture::operator !=(const texture &texture) const noexcept {
+  return get_sdl_texture() != texture.get_sdl_texture();
+}
+
+texture::operator bool() const noexcept {
+  return get_sdl_texture() != nullptr;
+}
+
 void texture::_set_info() noexcept {
   uint32_t format;
   SDL_QueryTexture(
