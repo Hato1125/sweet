@@ -21,13 +21,18 @@ int main(int argc, char **argv) {
     .enable_vsync()
     .set_color({ 255, 0, 0 });
 
-  sweet::texture image{ app.renderer, std::string{"/home/hato/画像/fm.png" } };
-  image.set_scale_width(0.4f)
-    .set_scale_height(0.4f);
+  sweet::texture image{
+    app.renderer, std::string{ "/Users/toha/Pictures/fw.png" }
+  };
+
+  image
+    .set_scale_width(1.5f)
+    .set_scale_height(1.5f);
 
   app.run({
     .on_init = [&app, &image]() {
-      image.load();
+      if(auto result = image.load(); !result)
+        std::cerr << result.error() << std::endl;
     },
     .on_render = [&image]() {
       image.render(0.f, 0.f);

@@ -52,7 +52,7 @@ texture::texture(sweet::renderer &renderer, const std::filesystem::path &path)
 }
 
 std::expected<void, std::string> texture::load() noexcept {
-  std::lock_guard<std::mutex> _lock{ _mutex };
+  std::lock_guard<std::mutex> lock{ _mutex };
 
   if(!_renderer) {
     return std::unexpected {
@@ -65,7 +65,7 @@ std::expected<void, std::string> texture::load() noexcept {
       "The texture is already loaded."
     };
   }
-  
+
   SDL_Texture *sdl_texture = IMG_LoadTexture(
     _renderer.get_sdl_renderer(),
     _path.c_str()
@@ -83,7 +83,7 @@ std::expected<void, std::string> texture::load() noexcept {
 }
 
 std::expected<void, std::string> texture::unload() noexcept {
-  std::lock_guard<std::mutex> _lock{ _mutex };
+  std::lock_guard<std::mutex> lock{ _mutex };
 
   if(!_sdl_texture) {
     return std::unexpected {
@@ -97,20 +97,21 @@ std::expected<void, std::string> texture::unload() noexcept {
 }
 
 std::expected<void, std::string> texture::release() noexcept  {
-  std::lock_guard<std::mutex> _lock{ _mutex };
-  std::string error_message{ };
+  std::lock_guard<std::mutex> lock{ _mutex };
 
-  auto temp_path = _path;
-  auto unload_result = unload();
+  SDL_Texture *sdl_texture = IMG_LoadTexture(
+    _renderer.get_sdl_renderer(),
+    _path.c_str()
+  );
+  _sdl_texture.reset(sdl_texture);
 
-  _path = temp_path;
-  auto load_result = load();
-
-  if(!unload_result || !load_result) {
+  if(!_sdl_texture) {
     return std::unexpected {
-      "An error occurred while reloading."
+      "Failed to load texture."
     };
   }
+  _set_info();
+
   return{ };
 }
 
@@ -164,7 +165,7 @@ void texture::render(
   const sweet::point32_t &pos,
   const sweet::size32_t &size
 ) noexcept {
-  render(x, y, { pos.x, pos.y, size.width, size.height });
+  render(x, y, pos, size);
 }
 
 void texture::render(
@@ -179,7 +180,7 @@ void texture::render(
   const sweet::point32_t &pos,
   const sweet::size32_t &size
 ) noexcept {
-  render(point.x, point.y, { pos.x, pos.y, size.width, size.height });
+  render(point.x, point.y, pos, size);
 }
 
 texture &texture::set_color(const sweet::color &color) noexcept {

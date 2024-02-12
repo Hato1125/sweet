@@ -25,9 +25,7 @@
 #define _LIBSWEET_CORE_APP_HPP
 
 #include <string>
-#include <cstdint>
 #include <expected>
-#include <iostream>
 #include <functional>
 #include <filesystem>
 

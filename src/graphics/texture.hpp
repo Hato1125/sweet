@@ -47,7 +47,7 @@ namespace sweet {
 class texture : sweet::resource {
 public:
   sweet::color color;
-  float angle; 
+  float angle;
   float scale_width;
   float scale_height;
   scale_mode scale_mode;
