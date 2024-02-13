@@ -30,12 +30,10 @@ app::app(int argc, char **argv)
     is_auto_finish{ true },
     _is_finish{ false } {
   _current_path = std::filesystem::path{ argv[0] };
-  _current_dire = _current_path.parent_path().string();
+  _current_dire = _current_path.parent_path();
 }
 
 app::~app() noexcept {
-  window.destroy();
-  renderer.destroy();
   SDL_Quit();
   IMG_Quit();
 }
@@ -67,7 +65,7 @@ void app::run(const app_loop &loop) noexcept {
   while(!_is_finish) {
     while(SDL_PollEvent(&sdl_event)) {
       if(is_auto_finish && sdl_event.type == SDL_QUIT)
-        goto finish;
+        return;
 
       if(loop.on_event)
         loop.on_event(sdl_event);
@@ -81,10 +79,6 @@ void app::run(const app_loop &loop) noexcept {
       loop.on_render();
     renderer.present();
   }
-finish:
-
-  if(loop.on_finish)
-    loop.on_finish();
 }
 
 void app::end(const app_end &end) noexcept {

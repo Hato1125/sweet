@@ -42,7 +42,6 @@ struct app_loop {
   std::function<void()> on_init;
   std::function<void()> on_update;
   std::function<void()> on_render;
-  std::function<void()> on_finish;
   std::function<void(event&)> on_event;
 };
 

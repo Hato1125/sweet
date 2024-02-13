@@ -2,6 +2,7 @@
 
 #include <app.hpp>
 #include <texture.hpp>
+#include <resource_bundle.hpp>
 
 int main(int argc, char **argv) {
   sweet::app app{ argc, argv };
@@ -21,26 +22,35 @@ int main(int argc, char **argv) {
     .enable_vsync()
     .set_color({ 255, 0, 0 });
 
-  sweet::texture image{
-    app.renderer, std::string{ "/Users/toha/Pictures/fw.png" }
+  sweet::resource_bundle<sweet::texture> bundle {
+    std::make_shared<sweet::texture>(app.renderer),
+    {
+      { "Test0", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
+      { "Test1", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
+      { "Test2", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
+      { "Test3", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
+      { "Test4", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
+      { "Test5", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
+      { "Test6", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
+      { "Test7", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
+      { "Test8", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
+      { "Test9", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
+    }
   };
 
-  image
-    .set_scale_width(1.5f)
-    .set_scale_height(1.5f);
-
   app.run({
-    .on_init = [&app, &image]() {
-      if(auto result = image.load(); !result)
-        std::cerr << result.error() << std::endl;
+    .on_init = [&app, &bundle]() {
+      auto results = bundle.load();
+      if(!results) {
+        for(const auto error : results.error())
+          std::cout << error << std::endl;
+      }
     },
-    .on_render = [&image]() {
-      image.render(0.f, 0.f);
+    .on_render = [&app, &bundle]() {
+      //bundle.get("Test0").render(0, 0);
     },
     .on_event = [&app](SDL_Event &event) {
-      if(event.type == SDL_KEYDOWN)
-        app.renderer.set_color({ 0, 0, 255 });
-      else if(event.type == SDL_KEYUP)
+      if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
         app.end();
     },
   });
