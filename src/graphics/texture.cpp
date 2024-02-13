@@ -31,10 +31,10 @@ SDL_FPoint texture::_s_rotation_point{ };
 texture::texture(sweet::renderer &renderer)
   noexcept : _renderer{ renderer },
              _sdl_texture{ nullptr, SDL_DestroyTexture },
-             color{ 255, 255, 255 },
              angle{ 0.f },
              scale_width{ 1.f },
              scale_height{ 1.f },
+             color{ 255, 255, 255 },
              scale_mode{ sweet::scale_mode::best },
              blend_mode{ sweet::blend_mode::blend },
              render_v_pos{ sweet::vertical::top },
@@ -133,7 +133,7 @@ std::expected<void, std::string> texture::release() noexcept  {
 void texture::render(
   float x,
   float y,
-  sweet::rect32_t rect
+  const sweet::rect32_t &rect
 ) noexcept {
   if(!get_sdl_texture())
     return;
@@ -189,7 +189,7 @@ void texture::render(
 
 void texture::render(
   const sweet::fpoint32_t &point,
-  sweet::rect32_t rect
+  const sweet::rect32_t &rect
 ) noexcept {
   render(point.x, point.y, rect);
 }
@@ -200,11 +200,6 @@ void texture::render(
   const sweet::size32_t &size
 ) noexcept {
   render(point.x, point.y, pos, size);
-}
-
-texture &texture::set_color(const sweet::color &color) noexcept {
-  this->color = color;
-  return *this;
 }
 
 texture &texture::set_alpha(uint32_t alpha) noexcept {
@@ -224,6 +219,11 @@ texture &texture::set_scale_width(float scale) noexcept {
 
 texture &texture::set_scale_height(float scale) noexcept {
   scale_height = scale;
+  return *this;
+}
+
+texture &texture::set_color(const sweet::color &color) noexcept {
+  this->color = color;
   return *this;
 }
 

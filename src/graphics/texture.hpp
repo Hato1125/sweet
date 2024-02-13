@@ -46,10 +46,10 @@
 namespace sweet {
 class texture : sweet::resource {
 public:
-  sweet::color color;
   float angle;
   float scale_width;
   float scale_height;
+  sweet::color color;
   sweet::scale_mode scale_mode;
   sweet::blend_mode blend_mode;
   sweet::vertical render_v_pos;
@@ -71,7 +71,7 @@ public:
   void render(
     float x,
     float y,
-    sweet::rect32_t rect = { }
+    const sweet::rect32_t &rect = { }
   ) noexcept;
 
   void render(
@@ -83,7 +83,7 @@ public:
 
   void render(
     const sweet::fpoint32_t &point,
-    sweet::rect32_t rect = { }
+    const sweet::rect32_t &rect = { }
   ) noexcept;
 
   void render(
@@ -92,11 +92,11 @@ public:
     const sweet::size32_t &size
   ) noexcept;
 
-  texture &set_color(const sweet::color &color) noexcept;
   texture &set_alpha(uint32_t alpha) noexcept;
   texture &set_angle(float angle) noexcept;
   texture &set_scale_width(float scale) noexcept;
   texture &set_scale_height(float scale) noexcept;
+  texture &set_color(const sweet::color &color) noexcept;
   texture &set_scale_mode(sweet::scale_mode mode) noexcept;
   texture &set_blend_mode(sweet::blend_mode mode) noexcept;
   texture &set_render_v_pos(sweet::vertical pos) noexcept;

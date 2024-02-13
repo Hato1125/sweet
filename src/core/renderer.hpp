@@ -33,7 +33,6 @@
 #include "color.hpp"
 #include "point.hpp"
 #include "rect.hpp"
-
 #include "window.hpp"
 
 namespace sweet {

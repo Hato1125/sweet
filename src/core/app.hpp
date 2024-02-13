@@ -37,12 +37,10 @@
 
 namespace sweet {
 struct app_loop {
-  using event = SDL_Event;
-
   std::function<void()> on_init;
   std::function<void()> on_update;
   std::function<void()> on_render;
-  std::function<void(event&)> on_event;
+  std::function<void(SDL_Event&)> on_event;
 };
 
 struct app_end {

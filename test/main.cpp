@@ -58,18 +58,30 @@ int main(int argc, char **argv) {
         );
     },
     .on_event = [&app, &bundle](SDL_Event &event) {
-      if(event.type != SDL_KEYDOWN || event.key.keysym.sym != SDLK_ESCAPE)
-        return;
+      if(event.type != SDL_KEYUP)
 
-      app.end({
-        .on_finishing = [&bundle]() {
+      switch(event.key.keysym.sym) {
+        case SDLK_ESCAPE: {
+          app.end({
+            .on_finishing = [&bundle]() {
+              auto results = bundle.unload();
+              if(!results) {
+                for(const auto error : results.error())
+                  std::cerr << error << std::endl;
+              }
+            }
+          });
+          break;
+        }
+        case SDLK_SPACE: {
           auto results = bundle.unload();
           if(!results) {
             for(const auto error : results.error())
               std::cerr << error << std::endl;
           }
+          break;
         }
-      });
+      }
     },
   });
 }
