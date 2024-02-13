@@ -25,16 +25,6 @@ int main(int argc, char **argv) {
   sweet::resource_bundle<sweet::texture> bundle {
     std::make_shared<sweet::texture>(app.renderer),
     {
-      { "Test0", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
-      { "Test1", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
-      { "Test2", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
-      { "Test3", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
-      { "Test4", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
-      { "Test5", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
-      { "Test6", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
-      { "Test7", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
-      { "Test8", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
-      { "Test9", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
     }
   };
 

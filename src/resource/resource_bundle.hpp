@@ -56,6 +56,9 @@ public:
     if(_is_loaded)
       return{ };
 
+    if(_elements.empty())
+      return std::unexpected{ std::vector<std::string>{ "Element does not exist." } };
+
     using return_type = std::expected<void, std::vector<std::string>>;
 
     std::vector<std::function<return_type()>> functions{ };
@@ -79,6 +82,9 @@ public:
     if(!_is_loaded)
       return{ };
 
+    if(_elements.empty())
+      return std::unexpected{ std::vector<std::string>{ "Element does not exist." } };
+
     using return_type = std::expected<void, std::vector<std::string>>;
 
     std::vector<std::function<return_type()>> functions{ };
@@ -98,6 +104,9 @@ public:
   }
 
   std::expected<void, std::vector<std::string>> release() noexcept {
+    if(_elements.empty())
+      return std::unexpected{ std::vector<std::string>{ "Element does not exist." } };
+
     using return_type = std::expected<void, std::vector<std::string>>;
 
     std::vector<std::function<return_type()>> functions{ };
