@@ -61,6 +61,9 @@ public:
   texture(sweet::renderer &renderer, const std::string &path) noexcept;
   texture(sweet::renderer &renderer, const std::filesystem::path &path) noexcept;
 
+  texture(sweet::renderer &renderer, SDL_Texture *sdl_texture) noexcept;
+  texture(sweet::renderer &renderer, SDL_Surface *sdl_surface) noexcept;
+
   std::expected<void, std::string> load() noexcept override;
   std::expected<void, std::string> unload() noexcept override;
   std::expected<void, std::string> release() noexcept override;
