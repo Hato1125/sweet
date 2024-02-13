@@ -50,10 +50,12 @@ public:
   float angle;
   float scale_width;
   float scale_height;
-  scale_mode scale_mode;
-  blend_mode blend_mode;
-  vertical render_v_pos;
-  horizontal render_h_pos;
+  sweet::scale_mode scale_mode;
+  sweet::blend_mode blend_mode;
+  sweet::vertical render_v_pos;
+  sweet::horizontal render_h_pos;
+  sweet::vertical rotation_v_pos;
+  sweet::horizontal rotation_h_pos;
 
   texture(sweet::renderer &renderer) noexcept;
   texture(sweet::renderer &renderer, const std::string &path) noexcept;
@@ -96,6 +98,8 @@ public:
   texture &set_blend_mode(sweet::blend_mode mode) noexcept;
   texture &set_render_v_pos(sweet::vertical pos) noexcept;
   texture &set_render_h_pos(sweet::horizontal pos) noexcept;
+  texture &set_rotation_v_pos(sweet::vertical pos) noexcept;
+  texture &set_rotation_h_pos(sweet::horizontal pos) noexcept;
 
   uint64_t get_byte() const noexcept;
   uint32_t get_width() const noexcept;
@@ -126,7 +130,7 @@ private:
 private:
   static SDL_Rect _s_clip_rect;
   static SDL_FRect _s_render_rect;
-  static SDL_FPoint _s_render_point;
+  static SDL_FPoint _s_rotation_point;
 };
 }
 

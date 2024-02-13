@@ -43,15 +43,33 @@ int main(int argc, char **argv) {
       auto results = bundle.load();
       if(!results) {
         for(const auto error : results.error())
-          std::cout << error << std::endl;
+          std::cerr << error << std::endl;
       }
     },
     .on_render = [&app, &bundle]() {
-      //bundle.get("Test0").render(0, 0);
+      bundle["Test0"]->set_scale_mode(sweet::scale_mode::linear)
+        .set_render_h_pos(sweet::horizontal::center)
+        .set_render_v_pos(sweet::vertical::center)
+        .set_scale_width(0.25f)
+        .set_scale_height(0.25f)
+        .render(
+          app.window.get_size().width / 2.f,
+          app.window.get_size().height / 2.f
+        );
     },
-    .on_event = [&app](SDL_Event &event) {
-      if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
-        app.end();
+    .on_event = [&app, &bundle](SDL_Event &event) {
+      if(event.type != SDL_KEYDOWN || event.key.keysym.sym != SDLK_ESCAPE)
+        return;
+
+      app.end({
+        .on_finishing = [&bundle]() {
+          auto results = bundle.unload();
+          if(!results) {
+            for(const auto error : results.error())
+              std::cerr << error << std::endl;
+          }
+        }
+      });
     },
   });
 }

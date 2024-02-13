@@ -26,7 +26,7 @@
 namespace sweet {
 SDL_Rect texture::_s_clip_rect{ };
 SDL_FRect texture::_s_render_rect{ };
-SDL_FPoint texture::_s_render_point{ };
+SDL_FPoint texture::_s_rotation_point{ };
 
 texture::texture(sweet::renderer &renderer)
   noexcept : _renderer{ renderer },
@@ -35,10 +35,12 @@ texture::texture(sweet::renderer &renderer)
              angle{ 0.f },
              scale_width{ 1.f },
              scale_height{ 1.f },
-             scale_mode{ scale_mode::best },
-             blend_mode{ blend_mode::blend },
-             render_v_pos{ vertical::top },
-             render_h_pos{ horizontal::left } {
+             scale_mode{ sweet::scale_mode::best },
+             blend_mode{ sweet::blend_mode::blend },
+             render_v_pos{ sweet::vertical::top },
+             render_h_pos{ sweet::horizontal::left },
+             rotation_v_pos{ sweet::vertical::top },
+             rotation_h_pos{ sweet::horizontal::left } {
 }
 
 texture::texture(sweet::renderer &renderer, const std::string &path)
@@ -133,15 +135,19 @@ void texture::render(
   _s_clip_rect.x = rect.x;
   _s_clip_rect.y = rect.y;
 
-  _s_render_rect.x = x;
-  _s_render_rect.y = y;
   _s_render_rect.w = _s_clip_rect.w * scale_width;
   _s_render_rect.h = _s_clip_rect.h * scale_height;
 
-  _s_render_point = {
-    sweet::get_horizontal_pos(_width, render_h_pos),
-    sweet::get_vertical_pos(_height, render_v_pos)
+  _s_rotation_point = {
+    sweet::get_horizontal_pos(_s_render_rect.w, rotation_h_pos),
+    sweet::get_vertical_pos(_s_render_rect.h, rotation_v_pos)
   };
+
+  float r_h_pos = sweet::get_horizontal_pos(_s_render_rect.w, render_h_pos);
+  float r_v_pos = sweet::get_vertical_pos(_s_render_rect.h, render_v_pos);
+
+  _s_render_rect.x = x - r_h_pos;
+  _s_render_rect.y = y - r_v_pos;
 
   SDL_SetTextureBlendMode(get_sdl_texture(), static_cast<SDL_BlendMode>(blend_mode));
   SDL_SetTextureScaleMode(get_sdl_texture(), static_cast<SDL_ScaleMode>(scale_mode));
@@ -154,7 +160,7 @@ void texture::render(
     &_s_clip_rect,
     &_s_render_rect,
     angle,
-    &_s_render_point,
+    &_s_rotation_point,
     SDL_FLIP_NONE
   );
 }
@@ -225,6 +231,16 @@ texture &texture::set_render_v_pos(sweet::vertical pos) noexcept {
 
 texture &texture::set_render_h_pos(sweet::horizontal pos) noexcept {
   render_h_pos = pos;
+  return *this;
+}
+
+texture &texture::set_rotation_v_pos(sweet::vertical pos) noexcept {
+  rotation_v_pos = pos;
+  return *this;
+}
+
+texture &texture::set_rotation_h_pos(sweet::horizontal pos) noexcept {
+  rotation_h_pos = pos;
   return *this;
 }
 

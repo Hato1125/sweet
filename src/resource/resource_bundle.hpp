@@ -115,6 +115,16 @@ public:
       : std::unexpected{ errors };
   }
 
+  std::shared_ptr<Type> &get(const std::string &name) noexcept {
+    if(_elements.contains(name))
+      return _elements[name];
+    return _empty_element;
+  }
+
+  std::shared_ptr<Type> &operator [](const std::string &name) noexcept {
+    return get(name);
+  }
+
 private:
   bool _is_loaded;
 
@@ -150,7 +160,7 @@ private:
   std::vector<std::string> _get_errors(
     const std::vector<RType> &results
   ) const noexcept {
-    std::vector<std::string> errors{ }; 
+    std::vector<std::string> errors{ };
     for(const auto &result : results) {
       if(!result) {
         for(const auto &error : result.error())
