@@ -129,6 +129,7 @@ private:
 
   void _set_info() noexcept;
   void _clear_info() noexcept;
+  void _release_info() noexcept;
 
 private:
   static SDL_Rect _s_clip_rect;

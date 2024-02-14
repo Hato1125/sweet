@@ -114,20 +114,15 @@ std::expected<void, std::string> texture::unload() noexcept {
 std::expected<void, std::string> texture::release() noexcept  {
   std::lock_guard<std::mutex> lock{ _mutex };
 
-  SDL_Texture *sdl_texture = IMG_LoadTexture(
-    _renderer.get_sdl_renderer(),
-    _path.c_str()
-  );
-  _sdl_texture.reset(sdl_texture);
+    if(!_sdl_texture) {
+      return std::unexpected {
+        "Cannot be destroyed because the texture to be destroyed does not exist."
+      };
+    }
+    _sdl_texture.reset();
+    _release_info();
 
-  if(!_sdl_texture) {
-    return std::unexpected {
-      "Failed to load texture."
-    };
-  }
-  _set_info();
-
-  return{ };
+    return{ };
 }
 
 void texture::render(
@@ -299,6 +294,12 @@ void texture::_set_info() noexcept {
 
 void texture::_clear_info() noexcept {
   _path.clear();
+  _byte = 0;
+  _width = 0;
+  _height = 0;
+}
+
+void texture::_release_info() noexcept {
   _byte = 0;
   _width = 0;
   _height = 0;

@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
   sweet::resource_bundle<sweet::texture> bundle {
     std::make_shared<sweet::texture>(app.renderer),
     {
+      { "Test0", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
     }
   };
 
@@ -64,7 +65,7 @@ int main(int argc, char **argv) {
           break;
         }
         case SDLK_SPACE: {
-          auto results = bundle.unload();
+          auto results = bundle.release();
           if(!results) {
             for(const auto error : results.error())
               std::cerr << error << std::endl;
