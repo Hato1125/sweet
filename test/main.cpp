@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <app.hpp>
-#include <texture.hpp>
+#include <font.hpp>
 #include <resource_bundle.hpp>
 
 int main(int argc, char **argv) {
@@ -20,58 +20,50 @@ int main(int argc, char **argv) {
 
   app.renderer
     .enable_vsync()
-    .set_color({ 255, 0, 0 });
+    .set_color({ 0, 0, 0 });
 
-  sweet::resource_bundle<sweet::texture> bundle {
-    std::make_shared<sweet::texture>(app.renderer),
-    {
-      { "Test0", std::make_shared<sweet::texture>(app.renderer, std::string{ "/Users/toha/Pictures/4CAB7F45-EFBF-4EC2-B8E9-26F506FC99FB.png" }) },
-    }
+  sweet::font font{
+    app.renderer,
+    std::string{ "/Users/toha/Library/Fonts/RobotoMonoNerdFont-Bold.ttf" }
   };
+  std::unique_ptr<sweet::texture> font_texture;
 
   app.run({
-    .on_init = [&app, &bundle]() {
-      auto results = bundle.load();
-      if(!results) {
-        for(const auto error : results.error())
-          std::cerr << error << std::endl;
+    .on_init = [&app, &font, &font_texture]() {
+      if(auto result = font.load();  !result) {
+        std::cerr << result.error() << std::endl;
+        app.end();
+        return;
+      }
+      {
+        auto result = font.create_utf8_text_font(
+          "TestString",
+          {
+            .size = 50,
+            .color = { 255, 255, 255 },
+            .style = sweet::font_style::normal
+          }
+        );
+        if(!result) {
+          std::cerr << result.error() << std::endl;
+          app.end();
+          return;
+        }
+        font_texture = std::move(result.value());
       }
     },
-    .on_render = [&app, &bundle]() {
-      bundle["Test0"]->set_scale_mode(sweet::scale_mode::linear)
-        .set_render_h_pos(sweet::horizontal::center)
-        .set_render_v_pos(sweet::vertical::center)
-        .set_scale_width(0.25f)
-        .set_scale_height(0.25f)
-        .render(
-          app.window.get_size().width / 2.f,
-          app.window.get_size().height / 2.f
-        );
+    .on_render = [&app, &font_texture]() {
+      if(font_texture)
+        font_texture->render(0, 0);
     },
-    .on_event = [&app, &bundle](SDL_Event &event) {
-      if(event.type != SDL_KEYUP)
-
-      switch(event.key.keysym.sym) {
-        case SDLK_ESCAPE: {
-          app.end({
-            .on_finishing = [&bundle]() {
-              auto results = bundle.unload();
-              if(!results) {
-                for(const auto error : results.error())
-                  std::cerr << error << std::endl;
-              }
-            }
-          });
-          break;
-        }
-        case SDLK_SPACE: {
-          auto results = bundle.release();
-          if(!results) {
-            for(const auto error : results.error())
-              std::cerr << error << std::endl;
+    .on_event = [&app, &font, &font_texture](SDL_Event &event) {
+      if(event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE) {
+        app.end({
+          .on_finishing = [&font, &font_texture](){
+            font.unload();
+            font_texture->unload();
           }
-          break;
-        }
+        });
       }
     },
   });

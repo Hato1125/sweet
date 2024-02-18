@@ -36,6 +36,7 @@ app::app(int argc, char **argv)
 app::~app() noexcept {
   SDL_Quit();
   IMG_Quit();
+  TTF_Quit();
 }
 
 std::expected<void, std::string> app::init() noexcept {
@@ -49,7 +50,10 @@ std::expected<void, std::string> app::init() noexcept {
     return std::unexpected{ "Failed to initialize SDL." };
 
   if(IMG_Init(IMG_INIT_PNG) < 0)
-    return std::unexpected{ "Failed to initialize SDL_Image." };
+    return std::unexpected{ "Failed to initialize SDL_image." };
+
+  if(TTF_Init() < 0)
+    return std::unexpected{ "Failed to initialize SDL_ttf." };
 
   return{ };
 }
@@ -89,6 +93,7 @@ void app::end(const app_end &end) noexcept {
   renderer.destroy();
   SDL_Quit();
   IMG_Quit();
+  TTF_Quit();
 
   if(end.on_finished)
     end.on_finished();

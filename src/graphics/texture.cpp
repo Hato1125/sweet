@@ -55,16 +55,26 @@ texture::texture(sweet::renderer &renderer, const std::filesystem::path &path)
 
 texture::texture(sweet::renderer &renderer, SDL_Texture *sdl_texture)
   noexcept : texture(renderer) {
+    if(!sdl_texture)
+      return;
+
     _sdl_texture.reset(sdl_texture);
+    _set_info();
 }
 
 texture::texture(sweet::renderer &renderer, SDL_Surface *sdl_surface)
   noexcept : texture(renderer) {
+    if(!sdl_surface)
+      return;
+
     _sdl_texture.reset(SDL_CreateTextureFromSurface(
       renderer.get_sdl_renderer(),
       sdl_surface
     ));
-}
+    _set_info();
+
+    SDL_FreeSurface(sdl_surface);
+  }
 
 std::expected<void, std::string> texture::load() noexcept {
   std::lock_guard<std::mutex> lock{ _mutex };

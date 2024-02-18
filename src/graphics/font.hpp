@@ -21,60 +21,80 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_CORE_APP_HPP
-#define _LIBSWEET_CORE_APP_HPP
+#ifndef _LIBSWEET_GRAPHICS_FONT_HPP
+#define _LIBSWEET_GRAPHICS_FONT_HPP
 
+#include <mutex>
 #include <string>
+#include <memory>
 #include <expected>
-#include <functional>
 #include <filesystem>
 
 #include <SDL_ttf.h>
-#include <SDL_video.h>
-#include <SDL_image.h>
 
-#include "window.hpp"
+#include "color.hpp"
+#include "direction.hpp"
+#include "texture.hpp"
 #include "renderer.hpp"
+#include "resource.hpp"
 
 namespace sweet {
-struct app_loop {
-  std::function<void()> on_init;
-  std::function<void()> on_update;
-  std::function<void()> on_render;
-  std::function<void(SDL_Event&)> on_event;
+enum class font_style {
+  normal = TTF_STYLE_NORMAL,
+  bold = TTF_STYLE_BOLD,
+  italic = TTF_STYLE_ITALIC,
+  strikethrough = TTF_STYLE_STRIKETHROUGH
 };
 
-struct app_end {
-  std::function<void()> on_finishing;
-  std::function<void()> on_finished;
+struct font_info {
+  uint32_t size { 12u };
+  sweet::color color { 255u, 255u, 255u };
+  sweet::direction direction { sweet::direction::left };
+  sweet::font_style style { sweet::font_style::normal };
 };
 
-class app {
+class font : public sweet::resource {
+ using unique_texture = std::unique_ptr<sweet::texture>;
+
 public:
-  bool is_auto_finish;
+  font(sweet::renderer &renderer) noexcept;
+  font(sweet::renderer &renderer, const std::string &path) noexcept;
+  font(sweet::renderer &renderer, const std::filesystem::path &path) noexcept;
 
-  sweet::window window;
-  sweet::renderer renderer;
+  std::expected<void, std::string> load() noexcept override;
+  std::expected<void, std::string> unload() noexcept override;
+  std::expected<void, std::string> release() noexcept override;
 
-  app(int argc, char **argv) noexcept;
-  ~app() noexcept;
+  std::expected<unique_texture, std::string> create_text_font(
+    const std::string &text,
+    const sweet::font_info &info
+  ) noexcept;
 
-  std::expected<void, std::string> init() noexcept;
+  std::expected<unique_texture, std::string> create_utf8_text_font(
+    const std::string &text,
+    const sweet::font_info &info
+  ) noexcept;
 
-  void run(const app_loop &loop = app_loop{ }) noexcept;
-  void end(const app_end &end = app_end{ }) noexcept;
+  std::expected<unique_texture, std::string> create_unicode_text_font(
+    const std::basic_string<uint16_t> &text,
+    const sweet::font_info &info
+  ) noexcept;
 
-  std::filesystem::path get_current_path() const noexcept;
-  std::filesystem::path get_current_dire() const noexcept;
-
-  std::string get_current_path_s() const noexcept;
-  std::string get_current_dire_s() const noexcept;
+  [[nodiscard]]
+  TTF_Font *get_sdl_font() const noexcept;
 
 private:
-  bool _is_finish;
+  sweet::renderer &_renderer;
 
-  std::filesystem::path _current_path;
-  std::filesystem::path _current_dire;
+  std::mutex _mutex;
+  std::filesystem::path _path;
+  std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)> _sdl_font;
+
+  template <typename CharType, SDL_Surface *CreateFontSurfaceFunc(TTF_Font*, const CharType*, SDL_Color)>
+  std::expected<unique_texture, std::string> _create_font_texture(
+    const std::basic_string<CharType> &text,
+    const sweet::font_info &info
+  ) noexcept;
 };
 }
 
