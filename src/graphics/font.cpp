@@ -110,6 +110,24 @@ namespace sweet {
     if(!_renderer)
       return std::unexpected{ "The renderer has not been created and cannot be loaded." };
 
+    switch(info.direction) {
+      case sweet::direction::left:
+        TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_LTR);
+        break;
+
+      case sweet::direction::right:
+        TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_RTL);
+        break;
+
+      case sweet::direction::up:
+        TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_TTB);
+        break;
+
+      case sweet::direction::down:
+        TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_BTT);
+        break;
+    }
+
     TTF_SetFontSize(get_sdl_font(), static_cast<int>(info.size));
     TTF_SetFontStyle(get_sdl_font(), static_cast<int>(info.style));
     SDL_Surface *surface = CreateFontSurfaceFunc(

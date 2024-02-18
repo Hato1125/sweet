@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
           {
             .size = 50,
             .color = { 255, 255, 255 },
-            .style = sweet::font_style::normal
+            .style = sweet::font_style::normal,
           }
         );
         if(!result) {
