@@ -21,63 +21,49 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#include "keyboard.hpp"
+#ifndef _LIBSWEET_INPUT_GAME_CONTROLLER_HPP
+#define _LIBSWEET_INPUT_GAME_CONTROLLER_HPP
+
+#include <array>
+#include <memory>
+#include <string>
+#include <cstdint>
+#include <expected>
+
+#include <SDL_events.h>
+#include <SDL_gamecontroller.h>
 
 namespace sweet {
-bool keyboard::_is_key_state_update{ false };
-bool keyboard::_is_tick_frame_counter{ false };
-uint8_t keyboard::_frame_counter{ 0u };
-std::array<int8_t, 256> keyboard::_key_state{ };
+class game_controller {
+public:
+  game_controller(int32_t joystick_index) noexcept;
 
-void keyboard::update() noexcept {
-  if(_is_key_state_update && !_is_tick_frame_counter && _frame_counter < 2) {
-    _update_key_state();
-    ++_frame_counter;
-    return;
-  }
+  std::expected<void, std::string> create() noexcept;
+  std::expected<void, std::string> destroy() noexcept;
 
-  if(_is_tick_frame_counter && _frame_counter < 2) {
-    _update_key_state();
-    ++_frame_counter;
-  }
+  void update_button_state() noexcept;
+
+  bool is_pushing(SDL_GameControllerButton button) const noexcept;
+  bool is_pushed(SDL_GameControllerButton button) const noexcept;
+  bool is_separate(SDL_GameControllerButton button) const noexcept;
+
+  [[nodiscard]]
+  SDL_GameController *get_sdl_game_controller() const noexcept;
+
+  bool operator ==(const game_controller &controller) const noexcept;
+  bool operator !=(const game_controller &controller) const noexcept;
+
+  explicit operator bool() const noexcept;
+
+private:
+  bool _is_key_state_update;
+  bool _is_tick_frame_counter;
+  uint8_t _frame_counter;
+  int32_t _joystick_index;
+
+  std::array<int8_t, SDL_CONTROLLER_BUTTON_MAX> _button_state;
+  std::unique_ptr<SDL_GameController, decltype(&SDL_GameControllerClose)> _sdl_game_controller;
+};
 }
 
-void keyboard::update_event(const SDL_Event &e) noexcept {
-  switch(e.type) {
-    case SDL_KEYDOWN: {
-      _is_key_state_update = true;
-      _is_tick_frame_counter = false;
-      _frame_counter = 0u;
-      break;
-    }
-    case SDL_KEYUP: {
-      _is_key_state_update = false;
-      _is_tick_frame_counter = true;
-      _frame_counter = 0u;
-      break;
-    }
-  }
-}
-
-bool keyboard::is_pushing(SDL_Scancode key) noexcept {
-  return _key_state[static_cast<int>(key)] > 0;
-}
-
-bool keyboard::is_pushed(SDL_Scancode key) noexcept {
-  return _key_state[static_cast<int>(key)] == 2;
-}
-
-bool keyboard::is_separate(SDL_Scancode key) noexcept {
-  return _key_state[static_cast<int>(key)] == -1;
-}
-
-void keyboard::_update_key_state() noexcept {
-  const uint8_t *sdl_key_state = SDL_GetKeyboardState(nullptr);
-  for(size_t i = 0; i < _key_state.size(); ++i) {
-    if(sdl_key_state[i])
-      _key_state[i] = is_pushing(static_cast<SDL_Scancode>(i)) ? 1 : 2;
-    else
-      _key_state[i] = is_pushing(static_cast<SDL_Scancode>(i)) ? -1 : 0;
-  }
-}
-}
+#endif

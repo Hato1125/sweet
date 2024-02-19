@@ -37,7 +37,7 @@ public:
   ~keyboard() = delete;
 
   static void update() noexcept;
-  static void update_event(SDL_Event& e) noexcept;
+  static void update_event(const SDL_Event& e) noexcept;
 
   static bool is_pushing(SDL_Scancode key) noexcept;
   static bool is_pushed(SDL_Scancode key) noexcept;
