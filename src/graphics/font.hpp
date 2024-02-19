@@ -83,6 +83,11 @@ public:
   [[nodiscard]]
   TTF_Font *get_sdl_font() const noexcept;
 
+  bool operator ==(const font &font) const noexcept;
+  bool operator !=(const font &font) const noexcept;
+
+  explicit operator bool() const noexcept;
+
 private:
   sweet::renderer &_renderer;
 

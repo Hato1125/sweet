@@ -102,6 +102,18 @@ TTF_Font *font::get_sdl_font() const noexcept {
   return _sdl_font.get();
 }
 
+bool font::operator ==(const font &font) const noexcept {
+  return get_sdl_font() == font.get_sdl_font();
+}
+
+bool font::operator !=(const font &font) const noexcept {
+  return get_sdl_font() != font.get_sdl_font();
+}
+
+font::operator bool() const noexcept {
+  return get_sdl_font() != nullptr;
+}
+
 template <typename CharType, SDL_Surface *CreateFontSurfaceFunc(TTF_Font*, const CharType*, SDL_Color)>
 std::expected<unique_texture, std::string> font::_create_font_texture(
   const std::basic_string<CharType> &text,
