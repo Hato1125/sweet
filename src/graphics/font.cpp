@@ -103,7 +103,7 @@ namespace sweet {
   }
 
   template <typename CharType, SDL_Surface *CreateFontSurfaceFunc(TTF_Font*, const CharType*, SDL_Color)>
-   std::expected<unique_texture, std::string> font::_create_font_texture(
+  std::expected<unique_texture, std::string> font::_create_font_texture(
     const std::basic_string<CharType> &text,
     const sweet::font_info &info
   ) noexcept {

@@ -2,6 +2,7 @@
 
 #include <app.hpp>
 #include <font.hpp>
+#include <keyboard.hpp>
 #include <resource_bundle.hpp>
 
 int main(int argc, char **argv) {
@@ -52,11 +53,23 @@ int main(int argc, char **argv) {
         font_texture = std::move(result.value());
       }
     },
+    .on_update = [&app]() {
+      sweet::keyboard::update();
+      if(sweet::keyboard::is_pushing(SDL_SCANCODE_A))
+        std::cout << "A\n";
+
+      if(sweet::keyboard::is_pushed(SDL_SCANCODE_B))
+        std::cout << "B\n";
+
+      if(sweet::keyboard::is_separate(SDL_SCANCODE_C))
+        std::cout << "C\n";
+    },
     .on_render = [&app, &font_texture]() {
       if(font_texture)
         font_texture->render(0, 0);
     },
     .on_event = [&app, &font, &font_texture](SDL_Event &event) {
+      sweet::keyboard::update_event(event);
       if(event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE) {
         app.end({
           .on_finishing = [&font, &font_texture](){
