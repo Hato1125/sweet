@@ -27,6 +27,7 @@ namespace sweet {
 bool keyboard::_is_key_state_update{ false };
 bool keyboard::_is_tick_frame_counter{ false };
 uint8_t keyboard::_frame_counter{ 0u };
+
 std::array<int8_t, 256> keyboard::_key_state{ };
 
 void keyboard::update() noexcept {

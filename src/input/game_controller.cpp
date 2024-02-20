@@ -22,6 +22,7 @@
 /*--------------------------------------------------------------------------------*/
 
 #include "game_controller.hpp"
+#include <iostream>
 
 namespace sweet {
 game_controller::game_controller(int32_t joystick_index)
@@ -51,6 +52,9 @@ std::expected<void, std::string> game_controller::destroy() noexcept {
 }
 
 void game_controller::update_button_state() noexcept {
+  if(!get_sdl_game_controller())
+    return;
+
   for(size_t i = 0; i < _button_state.size(); ++i) {
     auto button = static_cast<SDL_GameControllerButton>(i);
     bool is_pushing_button = SDL_GameControllerGetButton(
@@ -73,6 +77,10 @@ bool game_controller::is_pushed(SDL_GameControllerButton button) const noexcept 
 
 bool game_controller::is_separate(SDL_GameControllerButton button) const noexcept {
   return get_sdl_game_controller() && _button_state[static_cast<int>(button)] == -1;
+}
+
+int32_t game_controller::get_joystick_index() const noexcept {
+	return _joystick_index;
 }
 
 SDL_GameController *game_controller::get_sdl_game_controller() const noexcept {

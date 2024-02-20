@@ -21,50 +21,54 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_INPUT_GAME_CONTROLLER_HPP
-#define _LIBSWEET_INPUT_GAME_CONTROLLER_HPP
+#ifndef _LIBSWEET_INPUT_GAME_CONTROLLER_MANAGER_HPP
+#define _LIBSWEET_INPUT_GAME_CONTROLLER_MANAGER_HPP
 
-#include <array>
-#include <memory>
-#include <string>
+#include <vector>
 #include <cstdint>
-#include <expected>
+#include <algorithm>
 
 #include <SDL_events.h>
-#include <SDL_gamecontroller.h>
+
+#include "game_controller.hpp"
 
 namespace sweet {
-class game_controller {
+class game_controller_manager final {
+using game_controller_it = std::vector<sweet::game_controller>::iterator;
+
 public:
-  game_controller(int32_t joystick_index) noexcept;
+  static void update() noexcept;
+  static void update_event(const SDL_Event &e) noexcept;
 
-  std::expected<void, std::string> create() noexcept;
-  std::expected<void, std::string> destroy() noexcept;
+  static bool is_pushing(
+    int32_t joystic_index,
+    SDL_GameControllerButton button
+  ) noexcept;
 
-  void update_button_state() noexcept;
+  static bool is_pushed(
+    int32_t joystic_index,
+    SDL_GameControllerButton button
+  ) noexcept;
 
-  bool is_pushing(SDL_GameControllerButton button) const noexcept;
-  bool is_pushed(SDL_GameControllerButton button) const noexcept;
-  bool is_separate(SDL_GameControllerButton button) const noexcept;
-
-  int32_t get_joystick_index() const noexcept;
-
-  [[nodiscard]]
-  SDL_GameController *get_sdl_game_controller() const noexcept;
-
-  bool operator ==(const game_controller &controller) const noexcept;
-  bool operator !=(const game_controller &controller) const noexcept;
-
-  explicit operator bool() const noexcept;
+  static bool is_separate(
+    int32_t joystic_index,
+    SDL_GameControllerButton button
+  ) noexcept;
 
 private:
-  bool _is_key_state_update;
-  bool _is_tick_frame_counter;
-  uint8_t _frame_counter;
-  int32_t _joystick_index;
+  static bool _is_key_state_update;
+  static bool _is_tick_frame_counter;
+  static uint8_t _frame_counter;
 
-  std::array<int8_t, SDL_CONTROLLER_BUTTON_MAX> _button_state;
-  std::unique_ptr<SDL_GameController, decltype(&SDL_GameControllerClose)> _sdl_game_controller;
+  static std::vector<sweet::game_controller> _game_controllers;
+
+  static void _update_game_controller_state() noexcept;
+  static void _add_game_controller(int32_t joystic_index) noexcept;
+  static void _remove_game_controller(int32_t joystic_index) noexcept;
+
+  static game_controller_it _get_game_controller_iterator(int32_t joystick_index) noexcept;
+  static int32_t _get_joystick_game_controller_index(int32_t joystic_index) noexcept;
+  static bool _is_contains_game_controller(game_controller_it &it) noexcept;
 };
 }
 

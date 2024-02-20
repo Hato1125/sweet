@@ -47,6 +47,7 @@ private:
   static bool _is_key_state_update;
   static bool _is_tick_frame_counter;
   static uint8_t _frame_counter;
+
   static std::array<int8_t, 256> _key_state;
 
   static void _update_key_state() noexcept;
