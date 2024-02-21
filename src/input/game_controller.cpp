@@ -22,7 +22,6 @@
 /*--------------------------------------------------------------------------------*/
 
 #include "game_controller.hpp"
-#include <iostream>
 
 namespace sweet {
 game_controller::game_controller(int32_t joystick_index)

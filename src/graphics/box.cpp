@@ -22,7 +22,6 @@
 /*--------------------------------------------------------------------------------*/
 
 #include "box.hpp"
-#include <SDL_render.h>
 
 namespace sweet {
 box::box(sweet::renderer &renderer)
