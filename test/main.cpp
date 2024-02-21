@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <app.hpp>
+#include <box.hpp>
 #include <font.hpp>
 #include <keyboard.hpp>
 #include <resource_bundle.hpp>
@@ -30,6 +31,8 @@ int main(int argc, char **argv) {
     std::string{ "/Users/toha/Library/Fonts/RobotoMonoNerdFont-Bold.ttf" }
   };
   std::unique_ptr<sweet::texture> font_texture;
+
+  sweet::box box{ app.renderer };
 
   app.run({
     .on_init = [&app, &font, &font_texture]() {
@@ -73,9 +76,12 @@ int main(int argc, char **argv) {
       if(sweet::game_controller_manager::is_pushed(1, SDL_CONTROLLER_BUTTON_A))
       	std::cout << "P2 A Button\n";
     },
-    .on_render = [&app, &font_texture]() {
+    .on_render = [&app, &font_texture, &box]() {
       if(font_texture)
         font_texture->render(0, 0);
+
+      box.fill_render(100, 100);
+      box.border_render(200, 100);
     },
     .on_event = [&app, &font, &font_texture](SDL_Event &event) {
     	sweet::game_controller_manager::update_event(event);
