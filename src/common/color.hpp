@@ -33,15 +33,15 @@ struct color {
   uint8_t b;
   uint8_t a;
 
-  color()
-    noexcept : r{ }, g{ }, b{ }, a{ 255 } {
+  constexpr color()
+    noexcept : r{ }, g{ }, b{ }, a{ 255u } {
   }
 
-  color(
+  constexpr color(
     uint8_t r,
     uint8_t g,
     uint8_t b,
-    uint8_t a = 255
+    uint8_t a = 255u
   ) noexcept : r{ r }, g{ g }, b{ b }, a{ a } {
   }
 
@@ -53,6 +53,21 @@ struct color {
   color &set_hex_argb(uint32_t color) noexcept;
   color &set_hex_rgba(uint32_t color) noexcept;
 };
+}
+
+namespace sweet::pallet {
+constexpr sweet::color red{ 255u, 59u, 48u };
+constexpr sweet::color orange{ 255u, 149u, 0u };
+constexpr sweet::color yellow{ 255u, 204u, 0u };
+constexpr sweet::color green{ 52u, 199u, 89u };
+constexpr sweet::color mint{ 0u, 199u, 190u };
+constexpr sweet::color teal{ 48u, 176u, 199u };
+constexpr sweet::color cyan{ 50u, 173u, 230u };
+constexpr sweet::color blur{ 0u, 122u, 255u };
+constexpr sweet::color indigo{ 88u, 86u, 214u };
+constexpr sweet::color purple{ 175u, 82u, 222u };
+constexpr sweet::color pink{ 255u, 45u, 85u };
+constexpr sweet::color brown{ 162u, 132u, 94u };
 }
 
 #endif
