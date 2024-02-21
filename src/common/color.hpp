@@ -56,6 +56,8 @@ struct color {
 }
 
 namespace sweet::pallet {
+constexpr sweet::color black{ 0u, 0u, 0u };
+constexpr sweet::color white{ 255u, 255u, 255u };
 constexpr sweet::color red{ 255u, 59u, 48u };
 constexpr sweet::color orange{ 255u, 149u, 0u };
 constexpr sweet::color yellow{ 255u, 204u, 0u };

@@ -48,7 +48,7 @@ enum class font_style {
 
 struct font_info {
   uint32_t size { 12u };
-  sweet::color color { 255u, 255u, 255u };
+  sweet::color color { sweet::pallet::white };
   sweet::direction direction { sweet::direction::left };
   sweet::font_style style { sweet::font_style::normal };
 };

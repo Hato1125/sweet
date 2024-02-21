@@ -34,7 +34,7 @@ texture::texture(sweet::renderer &renderer)
              angle{ 0.f },
              scale_width{ 1.f },
              scale_height{ 1.f },
-             color{ 255, 255, 255 },
+             color{ sweet::pallet::white },
              scale_mode{ sweet::scale_mode::best },
              blend_mode{ sweet::blend_mode::blend },
              render_v_pos{ sweet::vertical::top },

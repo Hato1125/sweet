@@ -1,3 +1,4 @@
+#include "color.hpp"
 #include <iostream>
 
 #include <app.hpp>
@@ -22,7 +23,7 @@ int main(int argc, char **argv) {
 
   app.renderer
     .enable_vsync()
-    .set_color({ 0, 0, 0 });
+    .set_color(sweet::pallet::black);
 
   sweet::font font{
     app.renderer,
@@ -42,7 +43,7 @@ int main(int argc, char **argv) {
           "TestString",
           {
             .size = 50,
-            .color = { 255, 255, 255 },
+            .color = sweet::pallet::white,
             .style = sweet::font_style::normal,
           }
         );
