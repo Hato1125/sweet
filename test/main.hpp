@@ -8,10 +8,14 @@
 #include <iostream>
 
 #include <app.hpp>
+#include <keyboard.hpp>
+#include <game_controller_manager.hpp>
 
 #include "test.hpp"
 #include "font_test.hpp"
 #include "texture_test.hpp"
+#include "keyboard_test.hpp"
+#include "game_controller_test.hpp"
 
 namespace sweet::test {
 class main final {

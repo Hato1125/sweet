@@ -6,7 +6,6 @@
 
 #include <font.hpp>
 
-#include "main.hpp"
 #include "test.hpp"
 
 namespace sweet::test {

@@ -5,7 +5,6 @@
 
 #include <texture.hpp>
 
-#include "main.hpp"
 #include "test.hpp"
 
 namespace sweet::test {

@@ -1,12 +1,13 @@
 #include "main.hpp"
-#include "color.hpp"
 
 namespace sweet::test {
 std::unique_ptr<sweet::app> main::app{ nullptr };
 std::string main::run_test_name{ };
 std::map<std::string, std::shared_ptr<sweet::test::test>> main::tests {
   { "font_test", std::make_shared<sweet::test::font_test>() },
-  { "texture_test", std::make_shared<sweet::test::texture_test>() }
+  { "texture_test", std::make_shared<sweet::test::texture_test>() },
+  { "keyboard_test", std::make_shared<sweet::test::keyboard_test>() },
+  { "game_controller_test", std::make_shared<sweet::test::game_controller_test>() },
 };
 
 std::expected<void, std::string> main::init(int argc, char **argv) noexcept {
@@ -48,6 +49,9 @@ void main::_init() noexcept {
 }
 
 void main::_update() noexcept {
+  sweet::keyboard::update();
+  sweet::game_controller_manager::update();
+
   tests[run_test_name]->update();
 }
 
@@ -60,6 +64,9 @@ void main::_finish() noexcept {
 }
 
 void main::_event(SDL_Event &e) noexcept {
+  sweet::keyboard::update_event(e);
+  sweet::game_controller_manager::update_event(e);
+
   switch(e.type) {
     case SDL_QUIT: {
       goto FINISH;

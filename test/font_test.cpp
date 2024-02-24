@@ -1,3 +1,4 @@
+#include "main.hpp"
 #include "font_test.hpp"
 
 namespace sweet::test {

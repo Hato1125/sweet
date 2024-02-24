@@ -1,3 +1,4 @@
+#include "main.hpp"
 #include "texture_test.hpp"
 
 namespace sweet::test {

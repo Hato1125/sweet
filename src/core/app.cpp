@@ -89,8 +89,8 @@ void app::end(const app_end &end) noexcept {
   if(end.on_finishing)
     end.on_finishing();
 
-  window.destroy();
-  renderer.destroy();
+  [[maybe_unused]] auto wd = window.destroy();
+  [[maybe_unused]] auto rd = renderer.destroy();
   SDL_Quit();
   IMG_Quit();
   TTF_Quit();
