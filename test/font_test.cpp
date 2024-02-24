@@ -25,8 +25,7 @@ void font_test::render() noexcept {
   if(!font || !font_text)
     return;
 
-  font_text->
-     set_render_h_pos(sweet::horizontal::center)
+  font_text->set_render_h_pos(sweet::horizontal::center)
     .set_render_v_pos(sweet::vertical::center)
     .render(
        main::app->window.get_size_width() / 2.f,

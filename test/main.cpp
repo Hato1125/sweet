@@ -1,4 +1,5 @@
 #include "main.hpp"
+#include "color.hpp"
 
 namespace sweet::test {
 std::unique_ptr<sweet::app> main::app{ nullptr };

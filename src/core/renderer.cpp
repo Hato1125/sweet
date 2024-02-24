@@ -97,6 +97,16 @@ renderer &renderer::set_viewport(const sweet::rect32_t &rect) noexcept {
   return *this;
 }
 
+renderer &renderer::set_scale(float x, float y) noexcept {
+  SDL_RenderSetScale(get_sdl_renderer(), x, y);
+  return *this;
+}
+
+renderer &renderer::set_viewport(int32_t x, int32_t y, uint32_t w, uint32_t h) noexcept {
+  SDL_Rect viewport{ x, y, static_cast<int32_t>(w), static_cast<int32_t>(h) };
+  SDL_RenderSetViewport(get_sdl_renderer(), &viewport);
+}
+
 sweet::color renderer::get_color() const noexcept {
   sweet::color color;
   SDL_GetRenderDrawColor(
@@ -129,6 +139,30 @@ sweet::rect32_t renderer::get_viewport() const noexcept {
     viewport.w,
     viewport.h
   };
+}
+
+float renderer::get_scale_x() const noexcept {
+  return get_scale().x;
+}
+
+float renderer::get_scale_y() const noexcept {
+  return get_scale().y;
+}
+
+int32_t renderer::get_viewport_x() const noexcept {
+  return get_viewport().x;
+}
+
+int32_t renderer::get_viewport_y() const noexcept {
+  return get_viewport().y;
+}
+
+uint32_t renderer::get_viewport_width() const noexcept {
+  return get_viewport().width;
+}
+
+uint32_t renderer::get_viewport_height() const noexcept {
+  return get_viewport().height;
 }
 
 SDL_Renderer *renderer::get_sdl_renderer() const noexcept {

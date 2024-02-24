@@ -52,10 +52,18 @@ public:
   renderer &set_color(const sweet::color &color) noexcept;
   renderer &set_scale(const sweet::fpoint32_t &scale) noexcept;
   renderer &set_viewport(const sweet::rect32_t &rect) noexcept;
+  renderer &set_scale(float x, float y) noexcept;
+  renderer &set_viewport(int32_t x, int32_t y, uint32_t w, uint32_t h) noexcept;
 
   sweet::color get_color() const noexcept;
   sweet::fpoint32_t get_scale() const noexcept;
   sweet::rect32_t get_viewport() const noexcept;
+  float get_scale_x() const noexcept;
+  float get_scale_y() const noexcept;
+  int32_t get_viewport_x() const noexcept;
+  int32_t get_viewport_y() const noexcept;
+  uint32_t get_viewport_width() const noexcept;
+  uint32_t get_viewport_height() const noexcept;
 
   [[nodiscard]]
   SDL_Renderer *get_sdl_renderer() const noexcept;
