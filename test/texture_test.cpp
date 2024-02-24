@@ -14,7 +14,13 @@ void texture_test::render() noexcept {
   if(!texture)
     return;
 
-  texture->render(0, 0);
+  texture->
+     set_render_h_pos(sweet::horizontal::center)
+    .set_render_v_pos(sweet::vertical::center)
+    .render(
+       main::app->window.get_size_width() / 2.f,
+       main::app->window.get_size_height() / 2.f
+     );
 }
 
 void texture_test::finish() noexcept {
