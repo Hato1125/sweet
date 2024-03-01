@@ -16,6 +16,7 @@
 #include "texture_test.hpp"
 #include "keyboard_test.hpp"
 #include "game_controller_test.hpp"
+#include "resource_bundle_test.hpp"
 
 namespace sweet::test {
 class main final {

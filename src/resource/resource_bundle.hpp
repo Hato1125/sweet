@@ -35,187 +35,215 @@
 #include "parallel.hpp"
 
 namespace sweet {
+ enum class bundle_state {
+   none,
+   loaded,
+   unloaded,
+   released
+ };
+
 template <typename Type, uint32_t Sqlit = 4>
 class resource_bundle {
 static_assert(std::is_base_of<sweet::resource, Type>::value == true);
 
-using element = std::shared_ptr<Type>;
-using element_name = std::string;
-using element_map = std::unordered_map<element_name, element>;
+using resource_elem = std::shared_ptr<Type>;
+using resource_name = std::string;
+using resource_map = std::unordered_map<resource_name, resource_elem>;
 
 public:
+  resource_bundle()
+    noexcept : _state{ bundle_state::none },
+               _empty_resource{ nullptr },
+               _resources{ },
+               _procces_names{ } {
+  }
+
   resource_bundle(
-    const element &empty_element,
-    const element_map &elements
-  ) noexcept : _empty_element{ empty_element },
-               _elements{ elements },
-               _load_element_names{ _sqlit_element_name() } {
+    const resource_elem &empty_resource,
+    const resource_map &resources
+  ) noexcept : _state{ bundle_state::none },
+               _empty_resource{ empty_resource },
+               _resources{ resources },
+               _procces_names{ _sqlit_process_names() } {
   }
 
-  std::expected<void, std::vector<std::string>> load() noexcept {
-    if(_is_loaded)
-      return{ };
+  std::expected<void, std::string> set_empty_resource(
+    const resource_elem &empty_resource
+  ) noexcept {
+    if(_empty_resource)
+      return std::unexpected{ "Empty resources have already been set." };
+    _empty_resource = empty_resource;
 
-    if(_elements.empty())
-      return std::unexpected{ std::vector<std::string>{ "Element does not exist." } };
+    return{ };
+  }
 
-    using return_type = std::expected<void, std::vector<std::string>>;
+  std::expected<void, std::string> set_resources(
+    const resource_map &resources
+  ) noexcept {
+    if(not _resources.empty())
+      return std::unexpected{ "Resources are already registered." };
+    _resources = resources;
+    _procces_names = _sqlit_process_names();
 
-    std::vector<std::function<return_type()>> functions{ };
+    return{ };
+  }
 
-    for(const auto &name : _load_element_names) {
-      functions.push_back([&name, this]() -> return_type {
-        return _load_elements(name);
-      });
+  std::expected<void, std::string> load() noexcept {
+    if(_resources.empty())
+      return std::unexpected{ "Resource is not registered." };
+
+    if(_state == bundle_state::loaded)
+      return std::unexpected{ "Already loaded." };
+
+    if(_state == bundle_state::unloaded)
+      return std::unexpected{ "Cannot load because it has already been unloaded." };
+    _state = bundle_state::loaded;
+
+    return _running_process([this](const resource_name &name){
+      return _resources[name]->load();
+    });
+  }
+
+  std::expected<void, std::string> unload() noexcept {
+    if(_state == bundle_state::unloaded || _state == bundle_state::none)
+      return std::unexpected{ "It cannot be unloaded because it has not been loaded yet." };
+    _state = bundle_state::unloaded;
+
+    auto result = _running_process([this](const resource_name &name){
+      return _resources[name]->unload();
+    });
+    _resources.clear();
+
+    return result;
+  }
+
+  std::expected<void, std::string> release() noexcept {
+    if(_state == bundle_state::released || _state == bundle_state::none)
+      return std::unexpected{ "It cannot be unloaded because it has not been loaded yet." };
+
+    if(_state == bundle_state::unloaded)
+      return std::unexpected{ "Cannot load because it has already been unloaded." };
+    _state = bundle_state::released;
+
+    return _running_process([this](const resource_name &name){
+      return _resources[name]->release();
+    });
+  }
+
+  std::expected<void, std::string> hot_reload() noexcept {
+    if(_state == bundle_state::loaded) {
+      if(auto result = release(); !result)
+        return std::unexpected{ result.error() };
     }
-    sweet::parallel<return_type> parallel{ std::launch::async, functions };
-
-    _is_loaded = true;
-
-    auto errors = _get_errors<return_type>(parallel.stand_by());
-    return errors.empty()
-      ? return_type{ }
-      : std::unexpected{ errors };
+    if(auto result = load(); !result)
+      return std::unexpected{ result.error() };
+    return{ };
   }
 
-  std::expected<void, std::vector<std::string>> unload() noexcept {
-    if(!_is_loaded)
-      return{ };
-
-    if(_elements.empty())
-      return std::unexpected{ std::vector<std::string>{ "Element does not exist." } };
-
-    using return_type = std::expected<void, std::vector<std::string>>;
-
-    std::vector<std::function<return_type()>> functions{ };
-    for(const auto &name : _load_element_names) {
-      functions.push_back([&name, this]() -> return_type {
-        return _unload_elements(name);
-      });
-    }
-    sweet::parallel<return_type> parallel{ std::launch::async, functions };
-
-    _is_loaded = false;
-
-    auto errors = _get_errors<return_type>(parallel.stand_by());
-    return errors.empty()
-      ? return_type{ }
-      : std::unexpected{ errors };
+  resource_elem &get(const resource_name &name) noexcept {
+    if(_resources.contains(name))
+      return _resources[name];
+    return _empty_resource;
   }
 
-  std::expected<void, std::vector<std::string>> release() noexcept {
-    if(_elements.empty())
-      return std::unexpected{ std::vector<std::string>{ "Element does not exist." } };
-
-    using return_type = std::expected<void, std::vector<std::string>>;
-
-    std::vector<std::function<return_type()>> functions{ };
-    for(const auto &name : _load_element_names) {
-      functions.push_back([&name, this]() -> return_type {
-        return _release_elements(name);
-      });
-    }
-    sweet::parallel<return_type> parallel{ std::launch::async, functions };
-
-    auto errors = _get_errors<return_type>(parallel.stand_by());
-
-    return errors.empty()
-      ? return_type{ }
-      : std::unexpected{ errors };
+  const resource_elem &get(const resource_name &name) const noexcept {
+    if(_resources.contains(name))
+      return _resources[name];
+    return _empty_resource;
   }
 
-  std::shared_ptr<Type> &get(const std::string &name) noexcept {
-    if(_elements.contains(name))
-      return _elements[name];
-    return _empty_element;
+  bundle_state state() const noexcept {
+    return _state;
   }
 
-  std::shared_ptr<Type> &operator [](const std::string &name) noexcept {
+  resource_map::size_type size() const noexcept {
+    return _resources.size();
+  }
+
+  resource_map::iterator begin() noexcept {
+    return _resources.begin();
+  }
+
+  const resource_map::iterator begin() const noexcept {
+    return _resources.begin();
+  }
+
+  resource_map::iterator end() noexcept {
+    return _resources.end();
+  }
+
+  const resource_map::iterator end() const noexcept {
+    return _resources.end();
+  }
+
+  resource_elem &operator[](const resource_name &name) noexcept {
+    return get(name);
+  }
+
+  const resource_elem &operator[](const resource_name &name) const noexcept {
     return get(name);
   }
 
 private:
-  bool _is_loaded;
+  bundle_state _state;
+  resource_elem _empty_resource;
+  resource_map _resources;
 
-  element _empty_element;
-  element_map _elements;
+  std::array<std::vector<resource_name>, Sqlit> _procces_names;
 
-  std::array<std::vector<element_name>, Sqlit> _load_element_names;
+  std::array<std::vector<resource_name>, Sqlit> _sqlit_process_names() const noexcept {
+    std::array<std::vector<resource_name>, Sqlit> names{ };
 
-  std::array<std::vector<element_name>, Sqlit> _sqlit_element_name() const noexcept {
-    auto element_it = _elements.begin();
-
-    size_t element_num = _elements.size();
-    size_t sqlit_num = element_num / Sqlit;
-
-    std::array<std::vector<element_name>, Sqlit> sqlit_names{ };
-    for(size_t i = 0; i < Sqlit; ++i) {
-      for(size_t j = 0; j < sqlit_num; ++j) {
-        sqlit_names[i].push_back(element_it->first);
-        ++element_it;
-      }
+    auto names_it = names.begin();
+    auto names_end_it = names.end();
+    for(const auto &[key, value] : _resources) {
+      names_it->push_back(key);
+      if(std::next(names_it) == names_end_it)
+        names_it = names.begin();
+      else
+        std::advance(names_it, 1);
     }
 
-    if(size_t rem = element_num % Sqlit; rem != 0) {
-      for(size_t i = 0; i < rem; ++i) {
-        sqlit_names[i].push_back(element_it->first);
-        ++element_it;
-      }
-    }
-    return sqlit_names;
+    return names;
   }
 
-  template <typename RType>
-  std::vector<std::string> _get_errors(
-    const std::vector<RType> &results
-  ) const noexcept {
+  std::vector<std::string> _process_resources(
+    const std::vector<resource_name> &process_names,
+    const std::function<std::expected<void, resource_name>(const resource_name &name)> &process_func
+  ) noexcept {
+    std::vector<std::string> process_error{ };
+    for(const auto &name : process_names) {
+      if(auto result = process_func(name); !result)
+        process_error.push_back(result.error());
+    }
+    return process_error;
+  }
+
+  std::expected<void, std::string> _running_process(
+    const std::function<std::expected<void, resource_name>(const resource_name &name)> &process_func
+  ) noexcept {
+    std::vector<std::function<std::vector<std::string>()>> running_functions{ };
+    for(const auto &name : _procces_names) {
+      running_functions.emplace_back([this, &process_func, &name](){
+        return _process_resources(name, process_func);
+      });
+    }
+
+    sweet::parallel<std::vector<std::string>> parallel {
+      std::launch::async,
+      running_functions
+    };
+    auto results = parallel.stand_by();
+
     std::vector<std::string> errors{ };
     for(const auto &result : results) {
-      if(!result) {
-        for(const auto &error : result.error())
-          errors.push_back(error);
-      }
+      if(not result.empty())
+        errors.insert(errors.end(), result.begin(), result.end());
     }
-    return errors;
-  }
 
-  std::expected<void, std::vector<std::string>> _load_elements(
-    const std::vector<element_name> &element_names
-  ) noexcept {
-    std::vector<std::string> _errors{ };
-    for(const auto &name : element_names) {
-      if(auto result = _elements[name]->load(); !result)
-        _errors.push_back(result.error());
-    }
-    return _errors.empty()
-      ? std::expected<void, std::vector<std::string>>{ }
-      : std::unexpected{ _errors };
-  }
-
-  std::expected<void, std::vector<std::string>> _unload_elements(
-    const std::vector<element_name> &element_names
-  ) noexcept {
-    std::vector<std::string> _errors{ };
-    for(const auto &name : element_names) {
-      if(auto result = _elements[name]->unload(); !result)
-        _errors.push_back(result.error());
-    }
-    return _errors.empty()
-      ? std::expected<void, std::vector<std::string>>{ }
-      : std::unexpected{ _errors };
-  }
-
-  std::expected<void, std::vector<std::string>> _release_elements(
-    const std::vector<element_name> &element_names
-  ) noexcept {
-    std::vector<std::string> _errors{ };
-    for(const auto &name : element_names) {
-      if(auto result = _elements[name]->release(); !result)
-        _errors.push_back(result.error());
-    }
-    return _errors.empty()
-      ? std::expected<void, std::vector<std::string>>{ }
-      : std::unexpected{ _errors };
+    if(not errors.empty())
+      return std::unexpected{ "Some resources are failing the operation." };
+    return{ };
   }
 };
 }

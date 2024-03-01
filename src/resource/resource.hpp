@@ -29,7 +29,6 @@
 
 namespace sweet {
 struct resource {
-  // NOTE: Resourceはスレッドセーフで設計必須
   virtual std::expected<void, std::string> load() noexcept = 0;
   virtual std::expected<void, std::string> unload() noexcept = 0;
   virtual std::expected<void, std::string> release() noexcept = 0;

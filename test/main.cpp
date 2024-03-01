@@ -1,5 +1,7 @@
 #include "main.hpp"
 
+#include <resource_bundle.hpp>
+
 namespace sweet::test {
 std::unique_ptr<sweet::app> main::app{ nullptr };
 std::string main::run_test_name{ };
@@ -8,6 +10,7 @@ std::map<std::string, std::shared_ptr<sweet::test::test>> main::tests {
   { "texture_test", std::make_shared<sweet::test::texture_test>() },
   { "keyboard_test", std::make_shared<sweet::test::keyboard_test>() },
   { "game_controller_test", std::make_shared<sweet::test::game_controller_test>() },
+  { "resource_bundle_test", std::make_shared<sweet::test::resource_bundle_test>() },
 };
 
 std::expected<void, std::string> main::init(int argc, char **argv) noexcept {
