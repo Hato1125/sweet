@@ -67,7 +67,6 @@ private:
   static void _remove_game_controller(int32_t joystic_index) noexcept;
 
   static game_controller_it _get_game_controller_iterator(int32_t joystick_index) noexcept;
-  static int32_t _get_joystick_game_controller_index(int32_t joystic_index) noexcept;
   static bool _is_contains_game_controller(game_controller_it &it) noexcept;
 };
 }

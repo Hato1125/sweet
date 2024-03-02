@@ -80,7 +80,7 @@ public:
   std::expected<void, std::string> set_resources(
     const resource_map &resources
   ) noexcept {
-    if(not _resources.empty())
+    if(!_resources.empty())
       return std::unexpected{ "Resources are already registered." };
     _resources = resources;
     _procces_names = _sqlit_process_names();
@@ -237,11 +237,11 @@ private:
 
     std::vector<std::string> errors{ };
     for(const auto &result : results) {
-      if(not result.empty())
+      if(!result.empty())
         errors.insert(errors.end(), result.begin(), result.end());
     }
 
-    if(not errors.empty())
+    if(!errors.empty())
       return std::unexpected{ "Some resources are failing the operation." };
     return{ };
   }
