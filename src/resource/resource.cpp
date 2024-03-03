@@ -21,27 +21,21 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_RESOURCE_RESOURCE_HPP
-#define _LIBSWEET_RESOURCE_RESOURCE_HPP
-
-#include <mutex>
-#include <string>
-#include <expected>
+#include "resource.hpp"
 
 namespace sweet {
-class resource {
-public:
-  std::expected<void, std::string> load() noexcept;
-  std::expected<void, std::string> unload() noexcept;
-  std::expected<void, std::string> release() noexcept;
-
-protected:
-  std::mutex process_mutex;
-
-  virtual std::expected<void, std::string> load_impl() noexcept = 0;
-  virtual std::expected<void, std::string> unload_impl() noexcept = 0;
-  virtual std::expected<void, std::string> release_impl() noexcept = 0;
-};
+std::expected<void, std::string> resource::load() noexcept {
+  std::lock_guard<std::mutex> lock{ process_mutex };
+  return load_impl();
 }
 
-#endif
+std::expected<void, std::string> resource::unload() noexcept {
+  std::lock_guard<std::mutex> lock{ process_mutex };
+  return unload_impl();
+}
+
+std::expected<void, std::string> resource::release() noexcept {
+  std::lock_guard<std::mutex> lock{ process_mutex };
+  return release_impl();
+}
+}

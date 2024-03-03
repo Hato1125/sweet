@@ -24,7 +24,6 @@
 #ifndef _LIBSWEET_GRAPHICS_TEXTURE_HPP
 #define _LIBSWEET_GRAPHICS_TEXTURE_HPP
 
-#include <mutex>
 #include <memory>
 #include <string>
 #include <cstdint>
@@ -44,7 +43,7 @@
 #include "resource.hpp"
 
 namespace sweet {
-class texture : sweet::resource {
+class texture : public sweet::resource {
 public:
   float angle;
   float scale_width;
@@ -63,10 +62,6 @@ public:
 
   texture(sweet::renderer &renderer, SDL_Texture *sdl_texture) noexcept;
   texture(sweet::renderer &renderer, SDL_Surface *sdl_surface) noexcept;
-
-  std::expected<void, std::string> load() noexcept override;
-  std::expected<void, std::string> unload() noexcept override;
-  std::expected<void, std::string> release() noexcept override;
 
   void render(
     float x,
@@ -116,10 +111,14 @@ public:
 
   explicit operator bool() const noexcept;
 
+protected:
+  std::expected<void, std::string> load_impl() noexcept override;
+  std::expected<void, std::string> unload_impl() noexcept override;
+  std::expected<void, std::string> release_impl() noexcept override;
+
 private:
   sweet::renderer &_renderer;
 
-  std::mutex _mutex;
   std::filesystem::path _path;
   std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> _sdl_texture;
 

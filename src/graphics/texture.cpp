@@ -74,65 +74,6 @@ texture::texture(sweet::renderer &renderer, SDL_Surface *sdl_surface)
     _set_info();
 
     SDL_FreeSurface(sdl_surface);
-  }
-
-std::expected<void, std::string> texture::load() noexcept {
-  std::lock_guard<std::mutex> lock{ _mutex };
-
-  if(!_renderer) {
-    return std::unexpected {
-      "The renderer has not been created and cannot be loaded."
-    };
-  }
-
-  if(_sdl_texture) {
-    return std::unexpected {
-      "The texture is already loaded."
-    };
-  }
-
-  SDL_Texture *sdl_texture = IMG_LoadTexture(
-    _renderer.get_sdl_renderer(),
-    _path.c_str()
-  );
-
-  if(!sdl_texture) {
-    return std::unexpected {
-      "Failed to load texture."
-    };
-  }
-  _sdl_texture.reset(sdl_texture);
-  _set_info();
-
-  return{ };
-}
-
-std::expected<void, std::string> texture::unload() noexcept {
-  std::lock_guard<std::mutex> lock{ _mutex };
-
-  if(!_sdl_texture) {
-    return std::unexpected {
-      "Cannot be destroyed because the texture to be destroyed does not exist."
-    };
-  }
-  _sdl_texture.reset();
-  _clear_info();
-
-  return{ };
-}
-
-std::expected<void, std::string> texture::release() noexcept  {
-  std::lock_guard<std::mutex> lock{ _mutex };
-
-    if(!_sdl_texture) {
-      return std::unexpected {
-        "Cannot be destroyed because the texture to be destroyed does not exist."
-      };
-    }
-    _sdl_texture.reset();
-    _release_info();
-
-    return{ };
 }
 
 void texture::render(
@@ -288,6 +229,59 @@ bool texture::operator !=(const texture &texture) const noexcept {
 
 texture::operator bool() const noexcept {
   return get_sdl_texture() != nullptr;
+}
+
+std::expected<void, std::string> texture::load_impl() noexcept {
+  if(!_renderer) {
+    return std::unexpected {
+      "The renderer has not been created and cannot be loaded."
+    };
+  }
+
+  if(_sdl_texture) {
+    return std::unexpected {
+      "The texture is already loaded."
+    };
+  }
+
+  SDL_Texture *sdl_texture = IMG_LoadTexture(
+    _renderer.get_sdl_renderer(),
+    _path.c_str()
+  );
+
+  if(!sdl_texture) {
+    return std::unexpected {
+      "Failed to load texture."
+    };
+  }
+  _sdl_texture.reset(sdl_texture);
+  _set_info();
+
+  return{ };
+}
+
+std::expected<void, std::string> texture::unload_impl() noexcept {
+  if(!_sdl_texture) {
+    return std::unexpected {
+      "Cannot be destroyed because the texture to be destroyed does not exist."
+    };
+  }
+  _sdl_texture.reset();
+  _clear_info();
+
+  return{ };
+}
+
+std::expected<void, std::string> texture::release_impl() noexcept  {
+  if(!_sdl_texture) {
+    return std::unexpected {
+      "Cannot be destroyed because the texture to be destroyed does not exist."
+    };
+  }
+  _sdl_texture.reset();
+  _release_info();
+
+  return{ };
 }
 
 void texture::_set_info() noexcept {

@@ -24,7 +24,6 @@
 #ifndef _LIBSWEET_GRAPHICS_FONT_HPP
 #define _LIBSWEET_GRAPHICS_FONT_HPP
 
-#include <mutex>
 #include <string>
 #include <memory>
 #include <expected>
@@ -61,10 +60,6 @@ public:
   font(sweet::renderer &renderer, const std::string &path) noexcept;
   font(sweet::renderer &renderer, const std::filesystem::path &path) noexcept;
 
-  std::expected<void, std::string> load() noexcept override;
-  std::expected<void, std::string> unload() noexcept override;
-  std::expected<void, std::string> release() noexcept override;
-
   std::expected<unique_texture, std::string> create_text_font(
     const std::string &text,
     const sweet::font_info &info
@@ -88,10 +83,14 @@ public:
 
   explicit operator bool() const noexcept;
 
+protected:
+  std::expected<void, std::string> load_impl() noexcept override;
+  std::expected<void, std::string> unload_impl() noexcept override;
+  std::expected<void, std::string> release_impl() noexcept override;
+
 private:
   sweet::renderer &_renderer;
 
-  std::mutex _mutex;
   std::filesystem::path _path;
   std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)> _sdl_font;
 

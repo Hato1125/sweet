@@ -41,42 +41,6 @@ font::font(sweet::renderer &renderer, const std::filesystem::path &path)
   _path = path;
 }
 
-std::expected<void, std::string> font::load() noexcept {
-  std::lock_guard<std::mutex> lock{ _mutex };
-
-  if(_sdl_font)
-    return std::unexpected{ "The texture is already loaded." };
-
-  TTF_Font *sdl_font = TTF_OpenFont(_path.c_str(), 12);
-
-  if(!sdl_font)
-    return std::unexpected{ "Failed to load font file." };
-  _sdl_font.reset(sdl_font);
-
-  return{ };
-}
-
-std::expected<void, std::string> font::unload() noexcept {
-  std::lock_guard<std::mutex> lock{ _mutex };
-
-  if(!_sdl_font)
-    return std::unexpected{ "There are no fonts to discard." };
-  _sdl_font.reset();
-  _path.clear();
-
-  return{ };
-}
-
-std::expected<void, std::string> font::release() noexcept {
-  std::lock_guard<std::mutex> lock{ _mutex };
-
-  if(!_sdl_font)
-    return std::unexpected{ "There are no fonts to discard." };
-  _sdl_font.reset();
-
-  return{ };
-}
-
 std::expected<unique_texture, std::string>  font::create_text_font(
   const std::string &text,
   const sweet::font_info &info
@@ -112,6 +76,36 @@ bool font::operator !=(const font &font) const noexcept {
 
 font::operator bool() const noexcept {
   return get_sdl_font() != nullptr;
+}
+
+std::expected<void, std::string> font::load_impl() noexcept {
+  if(_sdl_font)
+    return std::unexpected{ "The texture is already loaded." };
+
+  TTF_Font *sdl_font = TTF_OpenFont(_path.c_str(), 12);
+
+  if(!sdl_font)
+    return std::unexpected{ "Failed to load font file." };
+  _sdl_font.reset(sdl_font);
+
+  return{ };
+}
+
+std::expected<void, std::string> font::unload_impl() noexcept {
+  if(!_sdl_font)
+    return std::unexpected{ "There are no fonts to discard." };
+  _sdl_font.reset();
+  _path.clear();
+
+  return{ };
+}
+
+std::expected<void, std::string> font::release_impl() noexcept {
+  if(!_sdl_font)
+    return std::unexpected{ "There are no fonts to discard." };
+  _sdl_font.reset();
+
+  return{ };
 }
 
 template <typename CharType, SDL_Surface *CreateFontSurfaceFunc(TTF_Font*, const CharType*, SDL_Color)>
