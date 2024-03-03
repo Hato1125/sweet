@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 project(sweet_engine)
-set(VERSION 0.0.0)
+set(VERSION 0.0.1)
 set(LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
