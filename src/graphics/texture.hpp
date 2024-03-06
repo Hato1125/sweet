@@ -57,10 +57,10 @@ public:
   sweet::horizontal rotation_h_pos;
 
   texture(sweet::renderer &renderer) noexcept;
+  texture(sweet::renderer &renderer, const char *path) noexcept;
   texture(sweet::renderer &renderer, const std::string &path) noexcept;
   texture(sweet::renderer &renderer, const std::filesystem::path &path) noexcept;
 
-  texture(sweet::renderer &renderer, SDL_Texture *sdl_texture) noexcept;
   texture(sweet::renderer &renderer, SDL_Surface *sdl_surface) noexcept;
 
   void render(
@@ -118,17 +118,12 @@ protected:
 
 private:
   sweet::renderer &_renderer;
-
-  std::filesystem::path _path;
   std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> _sdl_texture;
 
+  const char *_path;
   uint64_t _byte;
   uint32_t _width;
   uint32_t _height;
-
-  void _set_info() noexcept;
-  void _clear_info() noexcept;
-  void _release_info() noexcept;
 
 private:
   static SDL_Rect _s_clip_rect;

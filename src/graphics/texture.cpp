@@ -31,6 +31,10 @@ SDL_FPoint texture::_s_rotation_point{ };
 texture::texture(sweet::renderer &renderer)
   noexcept : _renderer{ renderer },
              _sdl_texture{ nullptr, SDL_DestroyTexture },
+             _path{ nullptr },
+             _width{ 0u },
+             _height{ 0u },
+             _byte{ 0u },
              angle{ 0.f },
              scale_width{ 1.f },
              scale_height{ 1.f },
@@ -43,23 +47,19 @@ texture::texture(sweet::renderer &renderer)
              rotation_h_pos{ sweet::horizontal::left } {
 }
 
-texture::texture(sweet::renderer &renderer, const std::string &path)
+texture::texture(sweet::renderer &renderer, const char *path)
   noexcept : texture(renderer) {
   _path = path;
+}
+
+texture::texture(sweet::renderer &renderer, const std::string &path)
+  noexcept : texture(renderer) {
+  _path = path.c_str();
 }
 
 texture::texture(sweet::renderer &renderer, const std::filesystem::path &path)
   noexcept : texture(renderer) {
-  _path = path;
-}
-
-texture::texture(sweet::renderer &renderer, SDL_Texture *sdl_texture)
-  noexcept : texture(renderer) {
-    if(!sdl_texture)
-      return;
-
-    _sdl_texture.reset(sdl_texture);
-    _set_info();
+  _path = path.c_str();
 }
 
 texture::texture(sweet::renderer &renderer, SDL_Surface *sdl_surface)
@@ -71,8 +71,10 @@ texture::texture(sweet::renderer &renderer, SDL_Surface *sdl_surface)
       renderer.get_sdl_renderer(),
       sdl_surface
     ));
-    _set_info();
 
+    _width = sdl_surface->w;
+    _width = sdl_surface->h;
+    _byte = SDL_BYTESPERPIXEL(sdl_surface->format->format) * _width * _height;
     SDL_FreeSurface(sdl_surface);
 }
 
@@ -232,80 +234,54 @@ texture::operator bool() const noexcept {
 }
 
 std::expected<void, std::string> texture::load_impl() noexcept {
-  if(!_renderer) {
-    return std::unexpected {
-      "The renderer has not been created and cannot be loaded."
-    };
-  }
+  if(!_renderer)
+    return std::unexpected{ "Renderer has not been created." };
 
-  if(_sdl_texture) {
-    return std::unexpected {
-      "The texture is already loaded."
-    };
-  }
+  if(get_sdl_texture())
+    return std::unexpected{ "The texture is already loaded." };
 
-  SDL_Texture *sdl_texture = IMG_LoadTexture(
+  SDL_Surface *sdl_surface = IMG_Load(_path);
+  if(!sdl_surface)
+    return std::unexpected{ "Failed to load image." };
+
+  SDL_Texture *sdl_texture = SDL_CreateTextureFromSurface(
     _renderer.get_sdl_renderer(),
-    _path.c_str()
+    sdl_surface
   );
+  if(!sdl_texture)
+    return std::unexpected{ "Failed to convert Surface to Texture." };
 
-  if(!sdl_texture) {
-    return std::unexpected {
-      "Failed to load texture."
-    };
-  }
   _sdl_texture.reset(sdl_texture);
-  _set_info();
+  _width = sdl_surface->w;
+  _height = sdl_surface->h;
+  _byte = SDL_BYTESPERPIXEL(sdl_surface->format->format) * _width * _height;
+  SDL_FreeSurface(sdl_surface);
 
   return{ };
 }
 
 std::expected<void, std::string> texture::unload_impl() noexcept {
-  if(!_sdl_texture) {
-    return std::unexpected {
-      "Cannot be destroyed because the texture to be destroyed does not exist."
-    };
-  }
+  if(!get_sdl_texture())
+    return std::unexpected{ "There are no textures to discard." };
+
   _sdl_texture.reset();
-  _clear_info();
+  _path = nullptr;
+  _width = 0u;
+  _height = 0u;
+  _byte = 0u;
 
   return{ };
 }
 
 std::expected<void, std::string> texture::release_impl() noexcept  {
-  if(!_sdl_texture) {
-    return std::unexpected {
-      "Cannot be destroyed because the texture to be destroyed does not exist."
-    };
-  }
+  if(!get_sdl_texture())
+      return std::unexpected{ "There are no textures to discard." };
+
   _sdl_texture.reset();
-  _release_info();
+  _width = 0u;
+  _height = 0u;
+  _byte = 0u;
 
   return{ };
-}
-
-void texture::_set_info() noexcept {
-  uint32_t format;
-  SDL_QueryTexture(
-    get_sdl_texture(),
-    &format,
-    nullptr,
-    reinterpret_cast<int*>(&_width),
-    reinterpret_cast<int*>(&_height)
-  );
-  _byte = SDL_BYTESPERPIXEL(format) * _width * _height;
-}
-
-void texture::_clear_info() noexcept {
-  _path.clear();
-  _byte = 0;
-  _width = 0;
-  _height = 0;
-}
-
-void texture::_release_info() noexcept {
-  _byte = 0;
-  _width = 0;
-  _height = 0;
 }
 }
