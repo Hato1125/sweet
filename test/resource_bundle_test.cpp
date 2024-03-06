@@ -3,7 +3,7 @@
 
 namespace sweet::test {
 void resource_bundle_test::init() noexcept {
-  bundle = sweet::resource_bundle<sweet::texture>(
+  bundle = sweet::texture_bundle<>(
     std::make_shared<sweet::texture>(main::app->renderer),
     std::unordered_map<std::string, std::shared_ptr<sweet::texture>> {
       { "test_texture0", std::make_shared<sweet::texture>(main::app->renderer, main::app->get_current_dire_s() + "/test0.png") },

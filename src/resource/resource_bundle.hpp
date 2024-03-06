@@ -33,6 +33,8 @@
 
 #include "resource.hpp"
 #include "parallel.hpp"
+#include "texture.hpp"
+#include "font.hpp"
 
 namespace sweet {
  enum class bundle_state {
@@ -43,7 +45,7 @@ namespace sweet {
  };
 
 template <typename Type, uint32_t Sqlit = 4>
-class resource_bundle {
+class basic_resource_bundle {
 static_assert(std::is_base_of<sweet::resource, Type>::value == true);
 
 using resource_elem = std::shared_ptr<Type>;
@@ -51,14 +53,14 @@ using resource_name = std::string;
 using resource_map = std::unordered_map<resource_name, resource_elem>;
 
 public:
-  resource_bundle()
+  basic_resource_bundle()
     noexcept : _state{ bundle_state::none },
                _empty_resource{ nullptr },
                _resources{ },
                _procces_names{ } {
   }
 
-  resource_bundle(
+  basic_resource_bundle(
     const resource_elem &empty_resource,
     const resource_map &resources
   ) noexcept : _state{ bundle_state::none },
@@ -246,6 +248,12 @@ private:
     return{ };
   }
 };
+
+template <uint32_t Split = 4>
+using texture_bundle = basic_resource_bundle<sweet::texture, Split>;
+
+template <uint32_t Split = 4>
+using font_bundle = basic_resource_bundle<sweet::font, Split>;
 }
 
 #endif
