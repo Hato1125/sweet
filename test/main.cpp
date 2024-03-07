@@ -1,4 +1,5 @@
 #include "main.hpp"
+#include "version.hpp"
 
 #include <resource_bundle.hpp>
 
@@ -33,6 +34,11 @@ std::expected<void, std::string> main::init(int argc, char **argv) noexcept {
     .set_max_size({ 1920, 1080 })
     .set_min_size({ 1280, 720 })
     .set_size(app->window.get_min_size());
+
+  std::cout << "info > sdl_ver: " << sweet::get_sdl_version() << std::endl;
+  std::cout << "info > sdl_image_ver: " << sweet::get_sdl_image_version() << std::endl;
+  std::cout << "info > sdl_ttf_ver: " << sweet::get_sdl_ttf_version() << std::endl;
+  std::cout << "info > sweet_ver: " << sweet::get_sweet_version() << std::endl;
 
   return{ };
 }

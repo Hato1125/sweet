@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include <app.hpp>
+#include <version.hpp>
 #include <keyboard.hpp>
 #include <game_controller_manager.hpp>
 
