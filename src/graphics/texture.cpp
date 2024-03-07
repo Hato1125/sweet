@@ -73,7 +73,7 @@ texture::texture(sweet::renderer &renderer, SDL_Surface *sdl_surface)
     ));
 
     _width = sdl_surface->w;
-    _width = sdl_surface->h;
+    _height = sdl_surface->h;
     _byte = SDL_BYTESPERPIXEL(sdl_surface->format->format) * _width * _height;
     SDL_FreeSurface(sdl_surface);
 }

@@ -13,7 +13,8 @@ void font_test::init() noexcept {
   }
 
   auto result = font->create_utf8_text_font("TestString", {
-    .size = 50
+    .size = 50,
+    .color = sweet::pallet::white
   });
   if(!result) {
     std::cerr << "test > " << result.error() << std::endl;

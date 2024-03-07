@@ -37,12 +37,12 @@
 #include "font.hpp"
 
 namespace sweet {
- enum class bundle_state {
-   none,
-   loaded,
-   unloaded,
-   released
- };
+enum class bundle_state {
+  none,
+  loaded,
+  unloaded,
+  released
+};
 
 template <typename Type, uint32_t Sqlit = 4>
 class basic_resource_bundle {

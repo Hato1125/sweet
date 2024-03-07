@@ -57,6 +57,7 @@ class font : public sweet::resource {
 
 public:
   font(sweet::renderer &renderer) noexcept;
+  font(sweet::renderer &renderer, const char *path) noexcept;
   font(sweet::renderer &renderer, const std::string &path) noexcept;
   font(sweet::renderer &renderer, const std::filesystem::path &path) noexcept;
 
@@ -90,11 +91,11 @@ protected:
 
 private:
   sweet::renderer &_renderer;
-
-  std::filesystem::path _path;
   std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)> _sdl_font;
 
-  template <typename CharType, SDL_Surface *CreateFontSurfaceFunc(TTF_Font*, const CharType*, SDL_Color)>
+  const char *_path;
+
+  template <typename CharType, SDL_Surface *(TTF_Font*, const CharType*, SDL_Color)>
   std::expected<unique_texture, std::string> _create_font_texture(
     const std::basic_string<CharType> &text,
     const sweet::font_info &info
