@@ -60,7 +60,6 @@ public:
   texture(sweet::renderer &renderer, const char *path) noexcept;
   texture(sweet::renderer &renderer, const std::string &path) noexcept;
   texture(sweet::renderer &renderer, const std::filesystem::path &path) noexcept;
-
   texture(sweet::renderer &renderer, SDL_Surface *sdl_surface) noexcept;
 
   void render(

@@ -44,12 +44,12 @@ struct rect {
     noexcept : x{ }, y{ }, width{ }, height{ } {
   }
 
- constexpr rect(Type x, Type y, Type width, Type height)
+  constexpr rect(Type x, Type y, Type width, Type height)
     noexcept : x{ x }, y{ y }, width{ width }, height{ height } {
   }
 
   constexpr rect(const sweet::point<Type> &point, const sweet::size<Type> &size)
-      noexcept : x{ point.x }, y{ point.y }, width{ size.width }, height{ size.height } {
+    noexcept : x{ point.x }, y{ point.y }, width{ size.width }, height{ size.height } {
   }
 
   bool is_contains(Type x, Type y) const {

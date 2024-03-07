@@ -30,8 +30,8 @@ void font_test::render() noexcept {
   font_text->set_render_h_pos(sweet::horizontal::center)
     .set_render_v_pos(sweet::vertical::center)
     .render(
-       main::app->window.get_size_width() / 2.f,
-       main::app->window.get_size_height() / 2.f
+       main::app->window.get_size().width / 2.f,
+       main::app->window.get_size().height / 2.f
      );
 }
 
