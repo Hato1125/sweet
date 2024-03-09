@@ -25,7 +25,7 @@ public:
   main() = default;
   ~main() = default;
 
-  static std::unique_ptr<sweet::app> app;
+  static sweet::app app;
   static std::string run_test_name;
   static std::map<std::string, std::shared_ptr<sweet::test::test>> tests;
 

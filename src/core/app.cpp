@@ -24,13 +24,11 @@
 #include "app.hpp"
 
 namespace sweet {
-app::app(int argc, char **argv)
+app::app()
   noexcept : window{ },
     renderer{ window },
     is_auto_finish{ true },
     _is_finish{ false } {
-  _current_path = std::filesystem::path{ argv[0] };
-  _current_dire = _current_path.parent_path();
 }
 
 app::~app() noexcept {
@@ -39,7 +37,17 @@ app::~app() noexcept {
   TTF_Quit();
 }
 
-std::expected<void, std::string> app::init() noexcept {
+std::expected<void, std::string> app::init(
+  int argc,
+  char **argv,
+  const app_init_callback &init
+) noexcept {
+  _current_path = std::filesystem::path{ argv[0] };
+  _current_dire = _current_path.parent_path();
+
+  if(init.on_initing)
+    init.on_initing();
+
   if(auto result = window.create(); !result)
     return std::unexpected{ result.error() };
 
@@ -55,15 +63,15 @@ std::expected<void, std::string> app::init() noexcept {
   if(TTF_Init() < 0)
     return std::unexpected{ "Failed to initialize SDL_ttf." };
 
+  if(init.on_inited)
+    init.on_inited();
+
   return{ };
 }
 
-void app::run(const app_loop &loop) noexcept {
+void app::run(const app_loop_callback &loop) noexcept {
   if(!window || !renderer)
     return;
-
-  if(loop.on_init)
-    loop.on_init();
 
   SDL_Event sdl_event;
   while(!_is_finish) {
@@ -85,7 +93,7 @@ void app::run(const app_loop &loop) noexcept {
   }
 }
 
-void app::end(const app_end &end) noexcept {
+void app::end(const app_end_callback &end) noexcept {
   if(end.on_finishing)
     end.on_finishing();
 

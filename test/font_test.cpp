@@ -4,8 +4,8 @@
 namespace sweet::test {
 void font_test::init() noexcept {
   font = new sweet::font(
-    main::app->renderer,
-    main::app->get_current_dire_s() + "/test.otf"
+    main::app.renderer,
+    main::app.get_current_dire_s() + "/test.otf"
   );
   if(auto result = font->load(); !result) {
     std::cerr << "test > " << result.error() << std::endl;
@@ -30,8 +30,8 @@ void font_test::render() noexcept {
   font_text->set_render_h_pos(sweet::horizontal::center)
     .set_render_v_pos(sweet::vertical::center)
     .render(
-       main::app->window.get_size().width / 2.f,
-       main::app->window.get_size().height / 2.f
+       main::app.window.get_size().width / 2.f,
+       main::app.window.get_size().height / 2.f
      );
 }
 

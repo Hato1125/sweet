@@ -37,14 +37,18 @@
 #include "renderer.hpp"
 
 namespace sweet {
-struct app_loop {
-  std::function<void()> on_init;
-  std::function<void()> on_update;
-  std::function<void()> on_render;
-  std::function<void(SDL_Event&)> on_event;
+struct app_init_callback {
+  std::function<void()> on_initing;
+  std::function<void()> on_inited;
 };
 
-struct app_end {
+struct app_loop_callback {
+  std::function<void(SDL_Event&)> on_event;
+  std::function<void()> on_update;
+  std::function<void()> on_render;
+};
+
+struct app_end_callback {
   std::function<void()> on_finishing;
   std::function<void()> on_finished;
 };
@@ -56,13 +60,17 @@ public:
   sweet::window window;
   sweet::renderer renderer;
 
-  app(int argc, char **argv) noexcept;
+  app() noexcept;
   ~app() noexcept;
 
-  std::expected<void, std::string> init() noexcept;
+  std::expected<void, std::string> init(
+    int argc,
+    char **argv,
+    const app_init_callback &init = { }
+  ) noexcept;
 
-  void run(const app_loop &loop = app_loop{ }) noexcept;
-  void end(const app_end &end = app_end{ }) noexcept;
+  void run(const app_loop_callback &loop = { }) noexcept;
+  void end(const app_end_callback &end = { }) noexcept;
 
   std::filesystem::path get_current_path() const noexcept;
   std::filesystem::path get_current_dire() const noexcept;

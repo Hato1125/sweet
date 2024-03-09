@@ -4,7 +4,7 @@
 #include <resource_bundle.hpp>
 
 namespace sweet::test {
-std::unique_ptr<sweet::app> main::app{ nullptr };
+sweet::app main::app{ };
 std::string main::run_test_name{ };
 std::map<std::string, std::shared_ptr<sweet::test::test>> main::tests {
   { "font_test", std::make_shared<sweet::test::font_test>() },
@@ -25,15 +25,14 @@ std::expected<void, std::string> main::init(int argc, char **argv) noexcept {
   if(!tests.contains(run_test_name))
     return std::unexpected{ "The specified test does not exist." };
 
-  app = std::make_unique<sweet::app>(argc, argv);
-  if(auto result = app->init(); !result)
+  if(auto result = app.init(argc, argv, { .on_inited = _init }); !result)
     return std::unexpected{ result.error() };
 
-  app->is_auto_finish = false;
-  app->window.set_title("sweet engine test")
+  app.is_auto_finish = false;
+  app.window.set_title("sweet engine test")
     .set_max_size({ 1920, 1080 })
     .set_min_size({ 1280, 720 })
-    .set_size(app->window.get_min_size());
+    .set_size(app.window.get_min_size());
 
   std::cout << "info > sdl_ver: " << sweet::get_sdl_version() << std::endl;
   std::cout << "info > sdl_image_ver: " << sweet::get_sdl_image_version() << std::endl;
@@ -44,11 +43,10 @@ std::expected<void, std::string> main::init(int argc, char **argv) noexcept {
 }
 
 std::expected<void, std::string> main::run() noexcept {
-  app->run({
-    .on_init = _init,
+  app.run({
+    .on_event = _event,
     .on_update = _update,
-    .on_render = _render,
-    .on_event = _event
+    .on_render = _render
   });
   return{ };
 }
@@ -85,7 +83,7 @@ void main::_event(SDL_Event &e) noexcept {
         goto FINISH;
     } break;
     FINISH: {
-      app->end({
+      app.end({
         .on_finishing = _finish
       });
     } break;
