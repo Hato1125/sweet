@@ -24,39 +24,40 @@
 #include "keyboard.hpp"
 
 namespace sweet {
-bool keyboard::_is_key_state_update{ false };
-bool keyboard::_is_tick_frame_counter{ false };
-uint8_t keyboard::_frame_counter{ 0u };
+bool keyboard::_is_key_pressed{ false };
+bool keyboard::_is_one_frame_passed{ false };
+int32_t keyboard::_last_down_key_code{ SDLK_UNKNOWN };
 
-std::array<int8_t, 256> keyboard::_key_state{ };
+std::array<int8_t, SDL_NUM_SCANCODES> keyboard::_key_state{ };
 
 void keyboard::update() noexcept {
-  if(_is_key_state_update && !_is_tick_frame_counter && _frame_counter < 2) {
-    _update_key_state();
-    ++_frame_counter;
-    return;
-  }
-
-  if(_is_tick_frame_counter && _frame_counter < 2) {
-    _update_key_state();
-    ++_frame_counter;
+  if(_is_key_pressed) {
+    if(_is_one_frame_passed) {
+      _update_key_state();
+      _is_key_pressed = false;
+      _is_one_frame_passed = false;
+    } else {
+      _is_one_frame_passed = true;
+    }
   }
 }
 
 void keyboard::update_event(const SDL_Event &e) noexcept {
   switch(e.type) {
     case SDL_KEYDOWN: {
-      _is_key_state_update = true;
-      _is_tick_frame_counter = false;
-      _frame_counter = 0u;
-      break;
-    }
+      int32_t now_push_key_code = e.key.keysym.sym;
+      if(_last_down_key_code == now_push_key_code)
+        return;
+
+      _last_down_key_code = now_push_key_code;
+      _is_key_pressed = true;
+      _update_key_state();
+    } break;
     case SDL_KEYUP: {
-      _is_key_state_update = false;
-      _is_tick_frame_counter = true;
-      _frame_counter = 0u;
-      break;
-    }
+      _is_key_pressed = true;
+      _last_down_key_code = SDLK_UNKNOWN;
+      _update_key_state();
+    } break;
   }
 }
 

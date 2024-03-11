@@ -22,7 +22,6 @@
 /*--------------------------------------------------------------------------------*/
 
 #include "window.hpp"
-#include <SDL_video.h>
 
 namespace sweet {
 window::window()
