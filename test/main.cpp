@@ -1,8 +1,6 @@
 #include "main.hpp"
 #include "version.hpp"
 
-#include <resource_bundle.hpp>
-
 namespace sweet::test {
 sweet::app main::app{ };
 std::string main::run_test_name{ };
@@ -43,6 +41,7 @@ std::expected<void, std::string> main::init(int argc, char **argv) noexcept {
 }
 
 std::expected<void, std::string> main::run() noexcept {
+  sweet::game_controller ct{ 0 };
   app.run({
     .on_event = _event,
     .on_update = _update,

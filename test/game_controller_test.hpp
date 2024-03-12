@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include <game_controller_manager.hpp>
+#include <game_controller.hpp>
 
 #include "test.hpp"
 

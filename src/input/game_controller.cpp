@@ -26,6 +26,10 @@
 namespace sweet {
 game_controller::game_controller(int32_t joystick_index)
   noexcept : _joystick_index{ joystick_index },
+             _is_button_pressed{ false },
+             _is_one_frame_passed{ false },
+             _last_down_button{ SDL_CONTROLLER_BUTTON_INVALID },
+             _button_state{ SDL_CONTROLLER_BUTTON_INVALID },
              _sdl_game_controller{ nullptr, SDL_GameControllerClose } {
 }
 
@@ -33,12 +37,9 @@ std::expected<void, std::string> game_controller::create() noexcept {
   if(get_sdl_game_controller())
     return std::unexpected{ "The game controller has already been created." };
 
-  SDL_GameController *sdl_game_controller = SDL_GameControllerOpen(_joystick_index);
-
-  if(!sdl_game_controller)
+  _sdl_game_controller.reset(SDL_GameControllerOpen(_joystick_index));
+  if(!_sdl_game_controller)
     return std::unexpected{ "Failed to create SDL_GameController." };
-
-  _sdl_game_controller.reset(sdl_game_controller);
   return{ };
 }
 
@@ -50,19 +51,37 @@ std::expected<void, std::string> game_controller::destroy() noexcept {
   return{ };
 }
 
-void game_controller::update_button_state() noexcept {
+void game_controller::update() noexcept {
+  if(get_sdl_game_controller() && _is_button_pressed) {
+    if(_is_one_frame_passed) {
+      _update_button_state();
+      _is_button_pressed = false;
+      _is_one_frame_passed = false;
+    } else {
+      _is_one_frame_passed = true;
+    }
+  }
+}
+
+void game_controller::update_event(const SDL_Event &e) noexcept {
   if(!get_sdl_game_controller())
     return;
 
-  for(size_t i = 0; i < _button_state.size(); ++i) {
-    auto button = static_cast<SDL_GameControllerButton>(i);
-    bool is_pushing_button = SDL_GameControllerGetButton(
-      get_sdl_game_controller(),
-      button
-    );
-    _button_state[i] = is_pushing_button
-      ? is_pushing(button) ? 1 : 2
-      : is_pushing(button) ? -1 : 0;
+  switch(e.type) {
+    case SDL_CONTROLLERBUTTONDOWN: {
+      int8_t now_push_button = e.cbutton.button;
+      if(_last_down_button == now_push_button)
+        return;
+
+      _last_down_button = now_push_button;
+      _is_button_pressed = true;
+      _update_button_state();
+    } break;
+    case SDL_CONTROLLERBUTTONUP: {
+      _is_button_pressed = true;
+      _last_down_button = SDL_CONTROLLER_BUTTON_INVALID;
+      _update_button_state();
+    } break;
   }
 }
 
@@ -96,5 +115,18 @@ bool game_controller::operator !=(const game_controller &controller) const noexc
 
 game_controller::operator bool() const noexcept {
   return get_sdl_game_controller() != nullptr;
+}
+
+void game_controller::_update_button_state() noexcept {
+  if(!get_sdl_game_controller())
+    return;
+
+  for(size_t i = 0; i < _button_state.size(); ++i) {
+    SDL_GameControllerButton button = static_cast<SDL_GameControllerButton>(i);
+    if(SDL_GameControllerGetButton(get_sdl_game_controller(), button))
+      _button_state[i] = is_pushing(button) ? 1 : 2;
+    else
+      _button_state[i] = is_pushing(button) ? -1 : 0;
+  }
 }
 }
