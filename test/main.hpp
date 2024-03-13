@@ -5,19 +5,14 @@
 #include <memory>
 #include <string>
 #include <expected>
-#include <iostream>
 
 #include <app.hpp>
+#include <frame_monitor.hpp>
 #include <version.hpp>
 #include <keyboard.hpp>
 #include <game_controller_manager.hpp>
 
 #include "test.hpp"
-#include "font_test.hpp"
-#include "texture_test.hpp"
-#include "keyboard_test.hpp"
-#include "game_controller_test.hpp"
-#include "resource_bundle_test.hpp"
 
 namespace sweet::test {
 class main final {
@@ -26,6 +21,7 @@ public:
   ~main() = default;
 
   static sweet::app app;
+  static sweet::frame_monitor frame_monitor;
   static std::string run_test_name;
   static std::map<std::string, std::shared_ptr<sweet::test::test>> tests;
 

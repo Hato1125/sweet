@@ -22,6 +22,7 @@
 /*--------------------------------------------------------------------------------*/
 
 #include "texture.hpp"
+#include <iostream>
 
 namespace sweet {
 SDL_Rect texture::_s_clip_rect{ };

@@ -1,8 +1,14 @@
 #include "main.hpp"
-#include "version.hpp"
+#include "font_test.hpp"
+#include "frame_monitor.hpp"
+#include "texture_test.hpp"
+#include "keyboard_test.hpp"
+#include "game_controller_test.hpp"
+#include "resource_bundle_test.hpp"
 
 namespace sweet::test {
 sweet::app main::app{ };
+sweet::frame_monitor main::frame_monitor{ };
 std::string main::run_test_name{ };
 std::map<std::string, std::shared_ptr<sweet::test::test>> main::tests {
   { "font_test", std::make_shared<sweet::test::font_test>() },
@@ -32,6 +38,8 @@ std::expected<void, std::string> main::init(int argc, char **argv) noexcept {
     .set_min_size({ 1280, 720 })
     .set_size(app.window.get_min_size());
 
+  frame_monitor.set_max_frame_rate(60.);
+
   std::cout << "info > sdl_ver: " << sweet::get_sdl_version() << std::endl;
   std::cout << "info > sdl_image_ver: " << sweet::get_sdl_image_version() << std::endl;
   std::cout << "info > sdl_ttf_ver: " << sweet::get_sdl_ttf_version() << std::endl;
@@ -55,14 +63,20 @@ void main::_init() noexcept {
 }
 
 void main::_update() noexcept {
+  frame_monitor.begin();
   sweet::keyboard::update();
   sweet::game_controller_manager::update();
 
   tests[run_test_name]->update();
+
+  std::cout << "Delta: " << frame_monitor.get_delta_time_f32() << "\n";
+  std::cout << "FPS:   " << frame_monitor.get_frame_rate() << "\n";
+  std::cout << "----------------------------\n";
 }
 
 void main::_render() noexcept {
   tests[run_test_name]->render();
+  frame_monitor.end();
 }
 
 void main::_finish() noexcept {
