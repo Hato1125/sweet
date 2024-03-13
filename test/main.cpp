@@ -51,9 +51,14 @@ std::expected<void, std::string> main::init(int argc, char **argv) noexcept {
 std::expected<void, std::string> main::run() noexcept {
   sweet::game_controller ct{ 0 };
   app.run({
-    .on_event = _event,
-    .on_update = _update,
-    .on_render = _render
+    .loop {
+      .on_event = _event,
+      .on_update = _update,
+      .on_render = _render
+    },
+    .end {
+      .on_finishing = _finish
+    }
   });
   return{ };
 }
@@ -88,17 +93,9 @@ void main::_event(SDL_Event &e) noexcept {
   sweet::game_controller_manager::update_event(e);
 
   switch(e.type) {
-    case SDL_QUIT: {
-      goto FINISH;
-    } break;
     case SDL_KEYUP: {
       if(e.key.keysym.sym == SDLK_ESCAPE)
-        goto FINISH;
-    } break;
-    FINISH: {
-      app.end({
-        .on_finishing = _finish
-      });
+        app.end();
     } break;
   }
 }

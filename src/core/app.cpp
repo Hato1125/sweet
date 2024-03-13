@@ -40,7 +40,7 @@ app::~app() noexcept {
 std::expected<void, std::string> app::init(
   int argc,
   char **argv,
-  const app_init_callback &init
+  const app_init_callbacks &init
 ) noexcept {
   _current_path = std::filesystem::path{ argv[0] };
   _current_dire = _current_path.parent_path();
@@ -69,7 +69,7 @@ std::expected<void, std::string> app::init(
   return{ };
 }
 
-void app::run(const app_loop_callback &loop) noexcept {
+void app::run(const app_run_callbacks &run) noexcept {
   if(!window || !renderer)
     return;
 
@@ -77,35 +77,34 @@ void app::run(const app_loop_callback &loop) noexcept {
   while(!_is_finish) {
     while(SDL_PollEvent(&sdl_event)) {
       if(is_auto_finish && sdl_event.type == SDL_QUIT)
-        return;
+        goto FINISH;
 
-      if(loop.on_event)
-        loop.on_event(sdl_event);
+      if(run.loop.on_event)
+        run.loop.on_event(sdl_event);
     }
 
-    if(loop.on_update)
-      loop.on_update();
+    if(run.loop.on_update)
+      run.loop.on_update();
 
     renderer.clear();
-    if(loop.on_render)
-      loop.on_render();
+    if(run.loop.on_render)
+      run.loop.on_render();
     renderer.present();
   }
-}
+FINISH:
 
-void app::end(const app_end_callback &end) noexcept {
-  if(end.on_finishing)
-    end.on_finishing();
+  if(run.end.on_finishing)
+    run.end.on_finishing();
 
-  [[maybe_unused]] auto wd = window.destroy();
-  [[maybe_unused]] auto rd = renderer.destroy();
   SDL_Quit();
   IMG_Quit();
   TTF_Quit();
 
-  if(end.on_finished)
-    end.on_finished();
+  if(run.end.on_finished)
+      run.end.on_finished();
+}
 
+void app::end() noexcept {
   _is_finish = true;
 }
 
