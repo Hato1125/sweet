@@ -44,7 +44,7 @@ enum class bundle_state {
   released
 };
 
-template <typename Type, uint32_t Sqlit = 4>
+template <typename Type, uint32_t Split = 4>
 class basic_resource_bundle {
 static_assert(std::is_base_of<sweet::resource, Type>::value == true);
 
@@ -66,10 +66,10 @@ public:
   ) noexcept : _state{ bundle_state::none },
                _empty_resource{ empty_resource },
                _resources{ resources },
-               _procces_names{ _sqlit_process_names() } {
+               _procces_names{ _split_process_names() } {
   }
 
-  basic_resource_bundle<Type, Sqlit> set_empty_resource(
+  basic_resource_bundle<Type, Split> set_empty_resource(
     const resource_elem &empty_resource
   ) noexcept {
     if(_empty_resource)
@@ -79,13 +79,13 @@ public:
     return *this;
   }
 
-  basic_resource_bundle<Type, Sqlit> set_resources(
+  basic_resource_bundle<Type, Split> set_resources(
     const resource_map &resources
   ) noexcept {
     if(!_resources.empty())
       return *this;
     _resources = resources;
-    _procces_names = _sqlit_process_names();
+    _procces_names = _split_process_names();
 
     return *this;
   }
@@ -191,10 +191,10 @@ private:
   resource_elem _empty_resource;
   resource_map _resources;
 
-  std::array<std::vector<resource_name>, Sqlit> _procces_names;
+  std::array<std::vector<resource_name>, Split> _procces_names;
 
-  std::array<std::vector<resource_name>, Sqlit> _sqlit_process_names() const noexcept {
-    std::array<std::vector<resource_name>, Sqlit> names{ };
+  std::array<std::vector<resource_name>, Split> _split_process_names() const noexcept {
+    std::array<std::vector<resource_name>, Split> names{ };
 
     auto names_it = names.begin();
     auto names_end_it = names.end();
