@@ -69,25 +69,25 @@ public:
                _procces_names{ _sqlit_process_names() } {
   }
 
-  std::expected<void, std::string> set_empty_resource(
+  basic_resource_bundle<Type, Sqlit> set_empty_resource(
     const resource_elem &empty_resource
   ) noexcept {
     if(_empty_resource)
-      return std::unexpected{ "Empty resources have already been set." };
+      return *this;
     _empty_resource = empty_resource;
 
-    return{ };
+    return *this;
   }
 
-  std::expected<void, std::string> set_resources(
+  basic_resource_bundle<Type, Sqlit> set_resources(
     const resource_map &resources
   ) noexcept {
     if(!_resources.empty())
-      return std::unexpected{ "Resources are already registered." };
+      return *this;
     _resources = resources;
     _procces_names = _sqlit_process_names();
 
-    return{ };
+    return *this;
   }
 
   std::expected<void, std::string> load() noexcept {
