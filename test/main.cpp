@@ -73,10 +73,6 @@ void main::_update() noexcept {
   sweet::game_controller_manager::update();
 
   tests[run_test_name]->update();
-
-  std::cout << "Delta: " << frame_monitor.get_delta_time_f32() << "\n";
-  std::cout << "FPS:   " << frame_monitor.get_frame_rate() << "\n";
-  std::cout << "----------------------------\n";
 }
 
 void main::_render() noexcept {

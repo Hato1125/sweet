@@ -117,9 +117,9 @@ protected:
 
 private:
   sweet::renderer &_renderer;
+  std::filesystem::path _path;
   std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> _sdl_texture;
 
-  const char *_path;
   uint64_t _byte;
   uint32_t _width;
   uint32_t _height;

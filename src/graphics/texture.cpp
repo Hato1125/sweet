@@ -22,7 +22,6 @@
 /*--------------------------------------------------------------------------------*/
 
 #include "texture.hpp"
-#include <iostream>
 
 namespace sweet {
 SDL_Rect texture::_s_clip_rect{ };
@@ -32,7 +31,7 @@ SDL_FPoint texture::_s_rotation_point{ };
 texture::texture(sweet::renderer &renderer)
   noexcept : _renderer{ renderer },
              _sdl_texture{ nullptr, SDL_DestroyTexture },
-             _path{ nullptr },
+             _path{ },
              _width{ 0u },
              _height{ 0u },
              _byte{ 0u },
@@ -55,12 +54,12 @@ texture::texture(sweet::renderer &renderer, const char *path)
 
 texture::texture(sweet::renderer &renderer, const std::string &path)
   noexcept : texture(renderer) {
-  _path = path.c_str();
+  _path = path;
 }
 
 texture::texture(sweet::renderer &renderer, const std::filesystem::path &path)
   noexcept : texture(renderer) {
-  _path = path.c_str();
+  _path = path;
 }
 
 texture::texture(sweet::renderer &renderer, SDL_Surface *sdl_surface)
@@ -241,7 +240,7 @@ std::expected<void, std::string> texture::load_impl() noexcept {
   if(get_sdl_texture())
     return std::unexpected{ "The texture is already loaded." };
 
-  SDL_Surface *sdl_surface = IMG_Load(_path);
+  SDL_Surface *sdl_surface = IMG_Load(_path.c_str());
   if(!sdl_surface)
     return std::unexpected{ "Failed to load image." };
 
@@ -266,7 +265,7 @@ std::expected<void, std::string> texture::unload_impl() noexcept {
     return std::unexpected{ "There are no textures to discard." };
 
   _sdl_texture.reset();
-  _path = nullptr;
+  _path.clear();
   _width = 0u;
   _height = 0u;
   _byte = 0u;
@@ -276,7 +275,7 @@ std::expected<void, std::string> texture::unload_impl() noexcept {
 
 std::expected<void, std::string> texture::release_impl() noexcept  {
   if(!get_sdl_texture())
-      return std::unexpected{ "There are no textures to discard." };
+    return std::unexpected{ "There are no textures to discard." };
 
   _sdl_texture.reset();
   _width = 0u;

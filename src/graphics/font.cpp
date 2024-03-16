@@ -87,7 +87,7 @@ std::expected<void, std::string> font::load_impl() noexcept {
   if(_sdl_font)
     return std::unexpected{ "The texture is already loaded." };
 
-  _sdl_font.reset(TTF_OpenFont(_path, 12));
+  _sdl_font.reset(TTF_OpenFont(_path.c_str(), 12));
   if(!_sdl_font)
     return std::unexpected{ "Failed to load font file." };
   return{ };
@@ -98,7 +98,7 @@ std::expected<void, std::string> font::unload_impl() noexcept {
     return std::unexpected{ "There are no fonts to discard." };
 
   _sdl_font.reset();
-  _path = nullptr;
+  _path.clear();
 
   return{ };
 }

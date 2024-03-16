@@ -25,10 +25,17 @@ void resource_bundle_test::render() noexcept {
       std::cout << "test > " << result.error() << std::endl;
   }
 
-  bundle["test_texture0"]->render(000, 000);
-  bundle["test_texture1"]->render(100, 000);
-  bundle["test_texture2"]->render(200, 000);
-  bundle["test_texture3"]->render(300, 000);
+  if(bundle["test_texture0"].has_value())
+    bundle["test_texture0"].value().value->render(000, 000);
+
+  if(bundle["test_texture1"].has_value())
+    bundle["test_texture1"].value().value->render(100, 000);
+
+  if(bundle["test_texture2"].has_value())
+    bundle["test_texture2"].value().value->render(200, 000);
+
+  if(bundle["test_texture3"].has_value())
+    bundle["test_texture3"].value().value->render(300, 000);
 }
 
 void resource_bundle_test::finish() noexcept {

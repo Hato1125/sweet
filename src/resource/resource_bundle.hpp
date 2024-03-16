@@ -28,6 +28,7 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <optional>
 #include <type_traits>
 #include <unordered_map>
 
@@ -42,6 +43,14 @@ enum class bundle_state {
   loaded,
   unloaded,
   released
+};
+
+template <typename Type>
+struct resource_provider {
+  const std::shared_ptr<Type> &value;
+  resource_provider(const std::shared_ptr<Type> &value)
+    noexcept : value{ value } {
+  }
 };
 
 template <typename Type, uint32_t Split = 4>
@@ -133,25 +142,30 @@ public:
   }
 
   std::expected<void, std::string> hot_reload() noexcept {
-    if(_state == bundle_state::loaded) {
-      if(auto result = release(); !result)
-        return std::unexpected{ result.error() };
-    }
+    if(_state == bundle_state::loaded)
+      [[maybe_unused]] auto _ = release();
+
     if(auto result = load(); !result)
       return std::unexpected{ result.error() };
     return{ };
   }
 
-  resource_elem &get(const resource_name &name) noexcept {
+  std::optional<resource_provider<Type>> get(const resource_name &name) noexcept {
     if(_resources.contains(name))
-      return _resources[name];
-    return _empty_resource;
+      return { _resources[name] };
+
+    if(_empty_resource)
+      return { _empty_resource };
+    return std::nullopt;
   }
 
-  const resource_elem &get(const resource_name &name) const noexcept {
+  const std::optional<resource_provider<Type>> get(const resource_name &name) const noexcept {
     if(_resources.contains(name))
-      return _resources[name];
-    return _empty_resource;
+      return { _resources[name] };
+
+    if(_empty_resource)
+      return { _empty_resource };
+    return std::nullopt;
   }
 
   bundle_state state() const noexcept {
@@ -178,11 +192,11 @@ public:
     return _resources.end();
   }
 
-  resource_elem &operator[](const resource_name &name) noexcept {
+  std::optional<resource_provider<Type>> operator[](const resource_name &name) noexcept {
     return get(name);
   }
 
-  const resource_elem &operator[](const resource_name &name) const noexcept {
+  const std::optional<resource_provider<Type>> operator[](const resource_name &name) const noexcept {
     return get(name);
   }
 

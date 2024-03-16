@@ -91,9 +91,9 @@ protected:
 
 private:
   sweet::renderer &_renderer;
+  std::filesystem::path _path;
   std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)> _sdl_font;
 
-  const char *_path;
 
   template <typename CharType, SDL_Surface *(TTF_Font*, const CharType*, SDL_Color)>
   std::expected<unique_texture, std::string> _create_font_texture(
