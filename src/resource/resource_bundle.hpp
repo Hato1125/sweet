@@ -78,7 +78,7 @@ public:
                _procces_names{ _split_process_names() } {
   }
 
-  basic_resource_bundle<Type, Split> set_empty_resource(
+  basic_resource_bundle<Type, Split> &set_empty_resource(
     const resource_elem &empty_resource
   ) noexcept {
     if(_empty_resource)
@@ -88,7 +88,7 @@ public:
     return *this;
   }
 
-  basic_resource_bundle<Type, Split> set_resources(
+  basic_resource_bundle<Type, Split> &set_resources(
     const resource_map &resources
   ) noexcept {
     if(!_resources.empty())
