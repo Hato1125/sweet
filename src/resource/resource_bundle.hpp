@@ -55,7 +55,15 @@ struct resource_provider {
 
 template <typename Type, uint32_t Split = 4>
 class basic_resource_bundle {
-static_assert(std::is_base_of<sweet::resource, Type>::value == true);
+static_assert(
+  Split > 0u,
+  "The number to be split must be 1 or more."
+);
+
+static_assert(
+  std::is_base_of<sweet::resource, Type>::value == true,
+  "Those who use ResourceBundle must inherit Resource."
+);
 
 using resource_elem = std::shared_ptr<Type>;
 using resource_name = std::string;
