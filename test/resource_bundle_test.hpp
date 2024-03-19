@@ -11,7 +11,7 @@
 
 namespace sweet::test {
 struct resource_bundle_test : public sweet::test::test {
-  sweet::resource_bundle<sweet::texture> bundle;
+  sweet::texture_bundle<> bundle;
 
   void init() noexcept override;
   void render() noexcept override;

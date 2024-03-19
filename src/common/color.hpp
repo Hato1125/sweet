@@ -34,7 +34,7 @@ struct color {
   uint8_t a;
 
   constexpr color()
-    noexcept : r{ }, g{ }, b{ }, a{ 255u } {
+    noexcept : r{ 0u }, g{ 0u }, b{ 0u }, a{ 255u } {
   }
 
   constexpr color(

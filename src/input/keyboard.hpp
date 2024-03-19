@@ -44,11 +44,11 @@ public:
   static bool is_separate(SDL_Scancode key) noexcept;
 
 private:
-  static bool _is_key_state_update;
-  static bool _is_tick_frame_counter;
-  static uint8_t _frame_counter;
+  static bool _is_key_pressed;
+  static bool _is_one_frame_passed;
+  static int32_t _last_down_key_code;
 
-  static std::array<int8_t, 256> _key_state;
+  static std::array<int8_t, SDL_NUM_SCANCODES> _key_state;
 
   static void _update_key_state() noexcept;
 };

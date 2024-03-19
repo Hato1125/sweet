@@ -21,54 +21,43 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_INPUT_GAME_CONTROLLER_HPP
-#define _LIBSWEET_INPUT_GAME_CONTROLLER_HPP
+#ifndef _LIBSWEET_VERSION_HPP
+#define _LIBSWEET_VERSION_HPP
 
-#include <array>
-#include <memory>
 #include <string>
-#include <cstdint>
-#include <expected>
 
-#include <SDL_events.h>
-#include <SDL_gamecontroller.h>
+#include <SDL_version.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
+
+#define SWEET_MAJOR_VERSION 0
+#define SWEET_MINOR_VERSION 2
+#define SWEET_PATCHLEVEL 0
 
 namespace sweet {
-class game_controller {
-public:
-  game_controller(int32_t joystick_index) noexcept;
+inline std::string get_sdl_version() noexcept {
+  return std::to_string(SDL_MAJOR_VERSION) + "."
+    + std::to_string(SDL_MINOR_VERSION) + "."
+    + std::to_string(SDL_PATCHLEVEL);
+}
 
-  std::expected<void, std::string> create() noexcept;
-  std::expected<void, std::string> destroy() noexcept;
+inline std::string get_sdl_image_version() noexcept {
+  return std::to_string(SDL_IMAGE_MAJOR_VERSION) + "."
+    + std::to_string(SDL_IMAGE_MINOR_VERSION) + "."
+    + std::to_string(SDL_IMAGE_PATCHLEVEL);
+}
 
-  void update() noexcept;
-  void update_event(const SDL_Event &e) noexcept;
+inline std::string get_sdl_ttf_version() noexcept {
+  return std::to_string(SDL_TTF_MAJOR_VERSION) + "."
+    + std::to_string(SDL_TTF_MINOR_VERSION) + "."
+    + std::to_string(SDL_TTF_PATCHLEVEL);
+}
 
-  bool is_pushing(SDL_GameControllerButton button) const noexcept;
-  bool is_pushed(SDL_GameControllerButton button) const noexcept;
-  bool is_separate(SDL_GameControllerButton button) const noexcept;
-
-  int32_t get_joystick_index() const noexcept;
-
-  [[nodiscard]]
-  SDL_GameController *get_sdl_game_controller() const noexcept;
-
-  bool operator ==(const game_controller &controller) const noexcept;
-  bool operator !=(const game_controller &controller) const noexcept;
-
-  explicit operator bool() const noexcept;
-
-private:
-  bool _is_button_pressed;
-  bool _is_one_frame_passed;
-  int32_t _last_down_button;
-  int32_t _joystick_index;
-
-  std::array<int8_t, SDL_CONTROLLER_BUTTON_MAX> _button_state;
-  std::unique_ptr<SDL_GameController, decltype(&SDL_GameControllerClose)> _sdl_game_controller;
-
-  void _update_button_state() noexcept;
-};
+inline std::string get_sweet_version() noexcept {
+  return std::to_string(SWEET_MAJOR_VERSION) + "."
+    + std::to_string(SWEET_MINOR_VERSION) + "."
+    + std::to_string(SWEET_PATCHLEVEL);
+}
 }
 
 #endif

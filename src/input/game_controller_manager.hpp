@@ -24,50 +24,26 @@
 #ifndef _LIBSWEET_INPUT_GAME_CONTROLLER_MANAGER_HPP
 #define _LIBSWEET_INPUT_GAME_CONTROLLER_MANAGER_HPP
 
-#include <vector>
 #include <cstdint>
-#include <algorithm>
-
-#include <SDL_events.h>
+#include <vector>
 
 #include "game_controller.hpp"
 
 namespace sweet {
 class game_controller_manager final {
-using game_controller_it = std::vector<sweet::game_controller>::iterator;
-
 public:
   static void update() noexcept;
   static void update_event(const SDL_Event &e) noexcept;
 
-  static bool is_pushing(
-    int32_t joystic_index,
-    SDL_GameControllerButton button
-  ) noexcept;
-
-  static bool is_pushed(
-    int32_t joystic_index,
-    SDL_GameControllerButton button
-  ) noexcept;
-
-  static bool is_separate(
-    int32_t joystic_index,
-    SDL_GameControllerButton button
-  ) noexcept;
+  static sweet::game_controller &get(int32_t joystick_index) noexcept;
 
 private:
-  static bool _is_key_state_update;
-  static bool _is_tick_frame_counter;
-  static uint8_t _frame_counter;
+  static sweet::game_controller _empty_controller;
+  static std::vector<sweet::game_controller> _controllers;
 
-  static std::vector<sweet::game_controller> _game_controllers;
-
-  static void _update_game_controller_state() noexcept;
   static void _add_game_controller(int32_t joystic_index) noexcept;
   static void _remove_game_controller(int32_t joystic_index) noexcept;
-
-  static game_controller_it _get_game_controller_iterator(int32_t joystick_index) noexcept;
-  static bool _is_contains_game_controller(game_controller_it &it) noexcept;
+  static std::vector<sweet::game_controller>::iterator find_joystick_index(int32_t joystick_index) noexcept;
 };
 }
 

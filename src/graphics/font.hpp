@@ -24,7 +24,6 @@
 #ifndef _LIBSWEET_GRAPHICS_FONT_HPP
 #define _LIBSWEET_GRAPHICS_FONT_HPP
 
-#include <mutex>
 #include <string>
 #include <memory>
 #include <expected>
@@ -58,12 +57,9 @@ class font : public sweet::resource {
 
 public:
   font(sweet::renderer &renderer) noexcept;
+  font(sweet::renderer &renderer, const char *path) noexcept;
   font(sweet::renderer &renderer, const std::string &path) noexcept;
   font(sweet::renderer &renderer, const std::filesystem::path &path) noexcept;
-
-  std::expected<void, std::string> load() noexcept override;
-  std::expected<void, std::string> unload() noexcept override;
-  std::expected<void, std::string> release() noexcept override;
 
   std::expected<unique_texture, std::string> create_text_font(
     const std::string &text,
@@ -88,14 +84,18 @@ public:
 
   explicit operator bool() const noexcept;
 
+protected:
+  std::expected<void, std::string> load_impl() noexcept override;
+  std::expected<void, std::string> unload_impl() noexcept override;
+  std::expected<void, std::string> release_impl() noexcept override;
+
 private:
   sweet::renderer &_renderer;
-
-  std::mutex _mutex;
   std::filesystem::path _path;
   std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)> _sdl_font;
 
-  template <typename CharType, SDL_Surface *CreateFontSurfaceFunc(TTF_Font*, const CharType*, SDL_Color)>
+
+  template <typename CharType, SDL_Surface *(TTF_Font*, const CharType*, SDL_Color)>
   std::expected<unique_texture, std::string> _create_font_texture(
     const std::basic_string<CharType> &text,
     const sweet::font_info &info

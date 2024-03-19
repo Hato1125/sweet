@@ -22,7 +22,6 @@
 /*--------------------------------------------------------------------------------*/
 
 #include "window.hpp"
-#include <SDL_video.h>
 
 namespace sweet {
 window::window()
@@ -64,12 +63,14 @@ std::expected<void, std::string> window::destroy() noexcept {
   return{ };
 }
 
-void window::show() noexcept {
+window &window::show() noexcept {
   SDL_ShowWindow(get_sdl_window());
+  return *this;
 }
 
-void window::hide() noexcept {
+window &window::hide() noexcept {
   SDL_ShowWindow(get_sdl_window());
+  return *this;
 }
 
 window &window::set_title(const std::string &title) noexcept {
@@ -94,26 +95,6 @@ window &window::set_min_size(const sweet::usize32_t &size) noexcept {
 
 window &window::set_max_size(const sweet::usize32_t &size) noexcept {
   SDL_SetWindowMaximumSize(get_sdl_window(), size.width, size.height);
-  return *this;
-}
-
-window &window::set_pos(int32_t x, int32_t y) noexcept {
-  SDL_SetWindowPosition(get_sdl_window(), x, y);
-  return *this;
-}
-
-window &window::set_size(uint32_t width, uint32_t height) noexcept {
-  SDL_SetWindowSize(get_sdl_window(), width, height);
-  return *this;
-}
-
-window &window::set_min_size(uint32_t width, uint32_t height) noexcept {
-  SDL_SetWindowMinimumSize(get_sdl_window(), width, height);
-  return *this;
-}
-
-window &window::set_max_size(uint32_t width, uint32_t height) noexcept {
-  SDL_SetWindowMaximumSize(get_sdl_window(), width, height);
   return *this;
 }
 
@@ -160,38 +141,6 @@ sweet::usize32_t window::get_max_size() const noexcept {
     static_cast<uint32_t>(width),
     static_cast<uint32_t>(height)
   };
-}
-
-int32_t window::get_pos_x() const noexcept {
-  return get_pos().x;
-}
-
-int32_t window::get_pos_y() const noexcept {
-  return get_pos().y;
-}
-
-uint32_t window::get_size_width() const noexcept {
-  return get_size().width;
-}
-
-uint32_t window::get_size_height() const noexcept {
-  return get_size().height;
-}
-
-uint32_t window::get_min_size_width() const noexcept {
-  return get_min_size().width;
-}
-
-uint32_t window::get_min_size_height() const noexcept {
-  return get_min_size().height;
-}
-
-uint32_t window::get_max_size_width() const noexcept {
-  return get_max_size().width;
-}
-
-uint32_t window::get_max_size_height() const noexcept {
-  return get_max_size().height;
 }
 
 SDL_Window *window::get_sdl_window() const noexcept {

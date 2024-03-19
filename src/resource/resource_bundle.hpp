@@ -28,64 +28,76 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <optional>
 #include <type_traits>
 #include <unordered_map>
 
 #include "resource.hpp"
 #include "parallel.hpp"
+#include "type_provider.hpp"
+#include "texture.hpp"
+#include "font.hpp"
 
 namespace sweet {
- enum class bundle_state {
-   none,
-   loaded,
-   unloaded,
-   released
- };
+enum class bundle_state {
+  none,
+  loaded,
+  unloaded,
+  released
+};
 
-template <typename Type, uint32_t Sqlit = 4>
-class resource_bundle {
-static_assert(std::is_base_of<sweet::resource, Type>::value == true);
+template <typename Type, uint32_t Split = 4u>
+class basic_resource_bundle {
+static_assert(
+  Split > 0u,
+  "The number to be split must be 1 or more."
+);
+
+static_assert(
+  std::is_base_of<sweet::resource, Type>::value == true,
+  "Those who use ResourceBundle must inherit Resource."
+);
 
 using resource_elem = std::shared_ptr<Type>;
 using resource_name = std::string;
 using resource_map = std::unordered_map<resource_name, resource_elem>;
 
 public:
-  resource_bundle()
+  basic_resource_bundle()
     noexcept : _state{ bundle_state::none },
                _empty_resource{ nullptr },
                _resources{ },
                _procces_names{ } {
   }
 
-  resource_bundle(
+  basic_resource_bundle(
     const resource_elem &empty_resource,
     const resource_map &resources
   ) noexcept : _state{ bundle_state::none },
                _empty_resource{ empty_resource },
                _resources{ resources },
-               _procces_names{ _sqlit_process_names() } {
+               _procces_names{ _split_process_names() } {
   }
 
-  std::expected<void, std::string> set_empty_resource(
+  basic_resource_bundle<Type, Split> &set_empty_resource(
     const resource_elem &empty_resource
   ) noexcept {
     if(_empty_resource)
-      return std::unexpected{ "Empty resources have already been set." };
+      return *this;
     _empty_resource = empty_resource;
 
-    return{ };
+    return *this;
   }
 
-  std::expected<void, std::string> set_resources(
+  basic_resource_bundle<Type, Split> &set_resources(
     const resource_map &resources
   ) noexcept {
     if(!_resources.empty())
-      return std::unexpected{ "Resources are already registered." };
+      return *this;
     _resources = resources;
-    _procces_names = _sqlit_process_names();
+    _procces_names = _split_process_names();
 
-    return{ };
+    return *this;
   }
 
   std::expected<void, std::string> load() noexcept {
@@ -131,25 +143,30 @@ public:
   }
 
   std::expected<void, std::string> hot_reload() noexcept {
-    if(_state == bundle_state::loaded) {
-      if(auto result = release(); !result)
-        return std::unexpected{ result.error() };
-    }
+    if(_state == bundle_state::loaded)
+      [[maybe_unused]] auto _ = release();
+
     if(auto result = load(); !result)
       return std::unexpected{ result.error() };
     return{ };
   }
 
-  resource_elem &get(const resource_name &name) noexcept {
+  std::optional<sweet::type_provider<resource_elem>> get(const resource_name &name) noexcept {
     if(_resources.contains(name))
-      return _resources[name];
-    return _empty_resource;
+      return { _resources[name] };
+
+    if(_empty_resource)
+      return { _empty_resource };
+    return std::nullopt;
   }
 
-  const resource_elem &get(const resource_name &name) const noexcept {
+  const std::optional<sweet::type_provider<resource_elem>> get(const resource_name &name) const noexcept {
     if(_resources.contains(name))
-      return _resources[name];
-    return _empty_resource;
+      return { _resources[name] };
+
+    if(_empty_resource)
+      return { _empty_resource };
+    return std::nullopt;
   }
 
   bundle_state state() const noexcept {
@@ -176,11 +193,11 @@ public:
     return _resources.end();
   }
 
-  resource_elem &operator[](const resource_name &name) noexcept {
+  std::optional<sweet::type_provider<resource_elem>> operator[](const resource_name &name) noexcept {
     return get(name);
   }
 
-  const resource_elem &operator[](const resource_name &name) const noexcept {
+  const std::optional<sweet::type_provider<resource_elem>> operator[](const resource_name &name) const noexcept {
     return get(name);
   }
 
@@ -189,10 +206,10 @@ private:
   resource_elem _empty_resource;
   resource_map _resources;
 
-  std::array<std::vector<resource_name>, Sqlit> _procces_names;
+  std::array<std::vector<resource_name>, Split> _procces_names;
 
-  std::array<std::vector<resource_name>, Sqlit> _sqlit_process_names() const noexcept {
-    std::array<std::vector<resource_name>, Sqlit> names{ };
+  std::array<std::vector<resource_name>, Split> _split_process_names() const noexcept {
+    std::array<std::vector<resource_name>, Split> names{ };
 
     auto names_it = names.begin();
     auto names_end_it = names.end();
@@ -246,6 +263,12 @@ private:
     return{ };
   }
 };
+
+template <uint32_t Split = 4u>
+using texture_bundle = basic_resource_bundle<sweet::texture, Split>;
+
+template <uint32_t Split = 4u>
+using font_bundle = basic_resource_bundle<sweet::font, Split>;
 }
 
 #endif

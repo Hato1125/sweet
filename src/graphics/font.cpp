@@ -31,50 +31,19 @@ font::font(sweet::renderer &renderer)
               _sdl_font{ nullptr, TTF_CloseFont } {
 }
 
-font::font(sweet::renderer &renderer, const std::string &path)
-  noexcept : font(renderer) {
-    _path = path;
-}
-
-font::font(sweet::renderer &renderer, const std::filesystem::path &path)
+font::font(sweet::renderer &renderer, const char *path)
   noexcept : font(renderer) {
   _path = path;
 }
 
-std::expected<void, std::string> font::load() noexcept {
-  std::lock_guard<std::mutex> lock{ _mutex };
-
-  if(_sdl_font)
-    return std::unexpected{ "The texture is already loaded." };
-
-  TTF_Font *sdl_font = TTF_OpenFont(_path.c_str(), 12);
-
-  if(!sdl_font)
-    return std::unexpected{ "Failed to load font file." };
-  _sdl_font.reset(sdl_font);
-
-  return{ };
+font::font(sweet::renderer &renderer, const std::string &path)
+  noexcept : font(renderer) {
+  _path = path.c_str();
 }
 
-std::expected<void, std::string> font::unload() noexcept {
-  std::lock_guard<std::mutex> lock{ _mutex };
-
-  if(!_sdl_font)
-    return std::unexpected{ "There are no fonts to discard." };
-  _sdl_font.reset();
-  _path.clear();
-
-  return{ };
-}
-
-std::expected<void, std::string> font::release() noexcept {
-  std::lock_guard<std::mutex> lock{ _mutex };
-
-  if(!_sdl_font)
-    return std::unexpected{ "There are no fonts to discard." };
-  _sdl_font.reset();
-
-  return{ };
+font::font(sweet::renderer &renderer, const std::filesystem::path &path)
+  noexcept : font(renderer) {
+  _path = path.c_str();
 }
 
 std::expected<unique_texture, std::string>  font::create_text_font(
@@ -114,7 +83,35 @@ font::operator bool() const noexcept {
   return get_sdl_font() != nullptr;
 }
 
-template <typename CharType, SDL_Surface *CreateFontSurfaceFunc(TTF_Font*, const CharType*, SDL_Color)>
+std::expected<void, std::string> font::load_impl() noexcept {
+  if(_sdl_font)
+    return std::unexpected{ "The texture is already loaded." };
+
+  _sdl_font.reset(TTF_OpenFont(_path.c_str(), 12));
+  if(!_sdl_font)
+    return std::unexpected{ "Failed to load font file." };
+  return{ };
+}
+
+std::expected<void, std::string> font::unload_impl() noexcept {
+  if(!_sdl_font)
+    return std::unexpected{ "There are no fonts to discard." };
+
+  _sdl_font.reset();
+  _path.clear();
+
+  return{ };
+}
+
+std::expected<void, std::string> font::release_impl() noexcept {
+  if(!_sdl_font)
+    return std::unexpected{ "There are no fonts to discard." };
+
+  _sdl_font.reset();
+  return{ };
+}
+
+template <typename CharType, SDL_Surface *create_font_surface_f(TTF_Font*, const CharType*, SDL_Color)>
 std::expected<unique_texture, std::string> font::_create_font_texture(
   const std::basic_string<CharType> &text,
   const sweet::font_info &info
@@ -123,26 +120,16 @@ std::expected<unique_texture, std::string> font::_create_font_texture(
     return std::unexpected{ "The renderer has not been created and cannot be loaded." };
 
   switch(info.direction) {
-    case sweet::direction::left:
-      TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_LTR);
-      break;
-
-    case sweet::direction::right:
-      TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_RTL);
-      break;
-
-    case sweet::direction::up:
-      TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_TTB);
-      break;
-
-    case sweet::direction::down:
-      TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_BTT);
-      break;
+    using enum sweet::direction;
+    case left:  TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_LTR); break;
+    case right: TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_RTL); break;
+    case up:    TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_TTB); break;
+    case down:  TTF_SetFontDirection(get_sdl_font(), TTF_DIRECTION_BTT); break;
   }
 
   TTF_SetFontSize(get_sdl_font(), static_cast<int>(info.size));
   TTF_SetFontStyle(get_sdl_font(), static_cast<int>(info.style));
-  SDL_Surface *surface = CreateFontSurfaceFunc(
+  SDL_Surface *surface = create_font_surface_f(
     get_sdl_font(),
     text.c_str(),
     SDL_Color {
@@ -151,6 +138,7 @@ std::expected<unique_texture, std::string> font::_create_font_texture(
       info.color.b,
     }
   );
+
   if(!surface)
     return std::unexpected{ "Failed to create text surface." };
   return std::make_unique<sweet::texture>(_renderer, surface);

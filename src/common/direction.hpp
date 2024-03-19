@@ -46,19 +46,21 @@ enum class direction {
 
 inline float get_horizontal_pos(float width, horizontal pos) noexcept {
   switch(pos) {
-    case horizontal::left: return 0.f;
-    case horizontal::center: return width / 2.f;
-    case horizontal::right: return width / 2.f;
-    default: return 0.f;
+    using enum horizontal;
+    case left:   return 0.f;
+    case center: return width / 2.f;
+    case right:  return width / 2.f;
+    default:     return 0.f;
   }
 }
 
 inline float get_vertical_pos(float height, vertical pos) noexcept {
   switch(pos) {
-    case vertical::top: return 0.f;
-    case vertical::center: return height / 2.f;
-    case vertical::bottom: return height / 2.f;
-    default: return 0.f;
+    using enum vertical;
+    case top:    return 0.f;
+    case center: return height / 2.f;
+    case bottom: return height / 2.f;
+    default:     return 0.f;
   }
 }
 }

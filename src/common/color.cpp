@@ -59,5 +59,4 @@ color &color::set_hex_rgba(uint32_t color) noexcept {
   a = static_cast<uint8_t>((color >> 0) & 0xff);
   return *this;
 }
-
 }

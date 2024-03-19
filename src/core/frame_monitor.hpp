@@ -21,53 +21,30 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_INPUT_GAME_CONTROLLER_HPP
-#define _LIBSWEET_INPUT_GAME_CONTROLLER_HPP
+#ifndef _LIBSWEET_CORE_FRAME_MONITOR_HPP
+#define _LIBSWEET_CORE_FRAME_MONITOR_HPP
 
-#include <array>
-#include <memory>
-#include <string>
 #include <cstdint>
-#include <expected>
-
-#include <SDL_events.h>
-#include <SDL_gamecontroller.h>
 
 namespace sweet {
-class game_controller {
+class frame_monitor {
 public:
-  game_controller(int32_t joystick_index) noexcept;
+  void begin() noexcept;
+  void end() noexcept;
 
-  std::expected<void, std::string> create() noexcept;
-  std::expected<void, std::string> destroy() noexcept;
+  void set_max_frame_rate(double fps) noexcept;
 
-  void update() noexcept;
-  void update_event(const SDL_Event &e) noexcept;
-
-  bool is_pushing(SDL_GameControllerButton button) const noexcept;
-  bool is_pushed(SDL_GameControllerButton button) const noexcept;
-  bool is_separate(SDL_GameControllerButton button) const noexcept;
-
-  int32_t get_joystick_index() const noexcept;
-
-  [[nodiscard]]
-  SDL_GameController *get_sdl_game_controller() const noexcept;
-
-  bool operator ==(const game_controller &controller) const noexcept;
-  bool operator !=(const game_controller &controller) const noexcept;
-
-  explicit operator bool() const noexcept;
+  float get_delta_time_f32() const noexcept;
+  double get_delta_time_f64() const noexcept;
+  int32_t get_frame_rate() const noexcept;
 
 private:
-  bool _is_button_pressed;
-  bool _is_one_frame_passed;
-  int32_t _last_down_button;
-  int32_t _joystick_index;
-
-  std::array<int8_t, SDL_CONTROLLER_BUTTON_MAX> _button_state;
-  std::unique_ptr<SDL_GameController, decltype(&SDL_GameControllerClose)> _sdl_game_controller;
-
-  void _update_button_state() noexcept;
+  double _limmit_ms;
+  double _delta_time;
+  double _one_sec_timer;
+  int32_t _ticks_count;
+  int32_t _frame_count;
+  int32_t _frame_rate;
 };
 }
 

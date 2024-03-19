@@ -21,54 +21,41 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_INPUT_GAME_CONTROLLER_HPP
-#define _LIBSWEET_INPUT_GAME_CONTROLLER_HPP
+#include <SDL_timer.h>
 
-#include <array>
-#include <memory>
-#include <string>
-#include <cstdint>
-#include <expected>
-
-#include <SDL_events.h>
-#include <SDL_gamecontroller.h>
+#include "frame_monitor.hpp"
 
 namespace sweet {
-class game_controller {
-public:
-  game_controller(int32_t joystick_index) noexcept;
+void frame_monitor::begin() noexcept {
+  while(!SDL_TICKS_PASSED(SDL_GetTicks(), _ticks_count + _limmit_ms));
 
-  std::expected<void, std::string> create() noexcept;
-  std::expected<void, std::string> destroy() noexcept;
-
-  void update() noexcept;
-  void update_event(const SDL_Event &e) noexcept;
-
-  bool is_pushing(SDL_GameControllerButton button) const noexcept;
-  bool is_pushed(SDL_GameControllerButton button) const noexcept;
-  bool is_separate(SDL_GameControllerButton button) const noexcept;
-
-  int32_t get_joystick_index() const noexcept;
-
-  [[nodiscard]]
-  SDL_GameController *get_sdl_game_controller() const noexcept;
-
-  bool operator ==(const game_controller &controller) const noexcept;
-  bool operator !=(const game_controller &controller) const noexcept;
-
-  explicit operator bool() const noexcept;
-
-private:
-  bool _is_button_pressed;
-  bool _is_one_frame_passed;
-  int32_t _last_down_button;
-  int32_t _joystick_index;
-
-  std::array<int8_t, SDL_CONTROLLER_BUTTON_MAX> _button_state;
-  std::unique_ptr<SDL_GameController, decltype(&SDL_GameControllerClose)> _sdl_game_controller;
-
-  void _update_button_state() noexcept;
-};
+  _delta_time = (SDL_GetTicks() - _ticks_count) / 1000.;
+  _ticks_count = SDL_GetTicks();
 }
 
-#endif
+void frame_monitor::end() noexcept {
+  _one_sec_timer += _delta_time;
+  ++_frame_count;
+  if(_one_sec_timer >= 1.0) {
+    _frame_rate = _frame_count;
+    _frame_count = 0;
+    _one_sec_timer = 0.;
+  }
+}
+
+void frame_monitor::set_max_frame_rate(double fps) noexcept {
+  _limmit_ms = 1000. / fps;
+}
+
+float frame_monitor::get_delta_time_f32() const noexcept {
+  return static_cast<float>(_delta_time);
+}
+
+double frame_monitor::get_delta_time_f64() const noexcept {
+  return _delta_time;
+}
+
+int32_t frame_monitor::get_frame_rate() const noexcept {
+  return _frame_rate;
+}
+}

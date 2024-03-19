@@ -24,13 +24,11 @@
 #include "app.hpp"
 
 namespace sweet {
-app::app(int argc, char **argv)
+app::app()
   noexcept : window{ },
     renderer{ window },
     is_auto_finish{ true },
     _is_finish{ false } {
-  _current_path = std::filesystem::path{ argv[0] };
-  _current_dire = _current_path.parent_path();
 }
 
 app::~app() noexcept {
@@ -39,7 +37,17 @@ app::~app() noexcept {
   TTF_Quit();
 }
 
-std::expected<void, std::string> app::init() noexcept {
+std::expected<void, std::string> app::init(
+  int argc,
+  char **argv,
+  const app_init_callbacks &init
+) noexcept {
+  _current_path = std::filesystem::path{ argv[0] };
+  _current_dire = _current_path.parent_path();
+
+  if(init.on_initing)
+    init.on_initing();
+
   if(auto result = window.create(); !result)
     return std::unexpected{ result.error() };
 
@@ -55,49 +63,51 @@ std::expected<void, std::string> app::init() noexcept {
   if(TTF_Init() < 0)
     return std::unexpected{ "Failed to initialize SDL_ttf." };
 
+  if(init.on_inited)
+    init.on_inited();
+
   return{ };
 }
 
-void app::run(const app_loop &loop) noexcept {
+void app::run(const app_run_callbacks &run) noexcept {
   if(!window || !renderer)
     return;
 
-  if(loop.on_init)
-    loop.on_init();
-
   SDL_Event sdl_event;
   while(!_is_finish) {
+    if(run.loop.on_begin)
+      run.loop.on_begin();
+
     while(SDL_PollEvent(&sdl_event)) {
       if(is_auto_finish && sdl_event.type == SDL_QUIT)
-        return;
+        goto FINISH;
 
-      if(loop.on_event)
-        loop.on_event(sdl_event);
+      if(run.loop.on_event)
+        run.loop.on_event(sdl_event);
     }
 
-    if(loop.on_update)
-      loop.on_update();
+    if(run.loop.on_update)
+      run.loop.on_update();
 
-    renderer.clear();
-    if(loop.on_render)
-      loop.on_render();
-    renderer.present();
+    renderer.rendering(run.loop.on_render);
+
+    if(run.loop.on_end)
+      run.loop.on_end();
   }
-}
+FINISH:
 
-void app::end(const app_end &end) noexcept {
-  if(end.on_finishing)
-    end.on_finishing();
+  if(run.end.on_finishing)
+    run.end.on_finishing();
 
-  [[maybe_unused]] auto wd = window.destroy();
-  [[maybe_unused]] auto rd = renderer.destroy();
   SDL_Quit();
   IMG_Quit();
   TTF_Quit();
 
-  if(end.on_finished)
-    end.on_finished();
+  if(run.end.on_finished)
+      run.end.on_finished();
+}
 
+void app::end() noexcept {
   _is_finish = true;
 }
 

@@ -59,16 +59,26 @@ std::expected<void, std::string> renderer::destroy() noexcept {
   return{ };
 }
 
-void renderer::flush() noexcept {
+void renderer::rendering(const std::function<void ()> &rendering) noexcept {
+  clear();
+  if(rendering)
+    rendering();
+  present();
+}
+
+renderer &renderer::flush() noexcept {
   SDL_RenderFlush(get_sdl_renderer());
+  return *this;
 }
 
-void renderer::clear() noexcept {
+renderer &renderer::clear() noexcept {
   SDL_RenderClear(get_sdl_renderer());
+  return *this;
 }
 
-void renderer::present() noexcept {
+renderer &renderer::present() noexcept {
   SDL_RenderPresent(get_sdl_renderer());
+  return *this;
 }
 
 renderer &renderer::enable_vsync() noexcept {
@@ -95,16 +105,6 @@ renderer &renderer::set_viewport(const sweet::rect32_t &rect) noexcept {
   SDL_Rect viewport{ rect.x, rect.y, rect.width, rect.height };
   SDL_RenderSetViewport(get_sdl_renderer(), &viewport);
   return *this;
-}
-
-renderer &renderer::set_scale(float x, float y) noexcept {
-  SDL_RenderSetScale(get_sdl_renderer(), x, y);
-  return *this;
-}
-
-renderer &renderer::set_viewport(int32_t x, int32_t y, uint32_t w, uint32_t h) noexcept {
-  SDL_Rect viewport{ x, y, static_cast<int32_t>(w), static_cast<int32_t>(h) };
-  SDL_RenderSetViewport(get_sdl_renderer(), &viewport);
 }
 
 sweet::color renderer::get_color() const noexcept {
@@ -139,30 +139,6 @@ sweet::rect32_t renderer::get_viewport() const noexcept {
     viewport.w,
     viewport.h
   };
-}
-
-float renderer::get_scale_x() const noexcept {
-  return get_scale().x;
-}
-
-float renderer::get_scale_y() const noexcept {
-  return get_scale().y;
-}
-
-int32_t renderer::get_viewport_x() const noexcept {
-  return get_viewport().x;
-}
-
-int32_t renderer::get_viewport_y() const noexcept {
-  return get_viewport().y;
-}
-
-uint32_t renderer::get_viewport_width() const noexcept {
-  return get_viewport().width;
-}
-
-uint32_t renderer::get_viewport_height() const noexcept {
-  return get_viewport().height;
 }
 
 SDL_Renderer *renderer::get_sdl_renderer() const noexcept {

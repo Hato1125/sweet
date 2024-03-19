@@ -42,32 +42,19 @@ public:
   std::expected<void, std::string> create() noexcept;
   std::expected<void, std::string> destroy() noexcept;
 
-  void show() noexcept;
-  void hide() noexcept;
-
+  window &show() noexcept;
+  window &hide() noexcept;
   window &set_title(const std::string &title) noexcept;
   window &set_pos(const sweet::point32_t &pos) noexcept;
   window &set_size(const sweet::usize32_t &size) noexcept;
   window &set_min_size(const sweet::usize32_t &size) noexcept;
   window &set_max_size(const sweet::usize32_t &size) noexcept;
-  window &set_pos(int32_t x, int32_t y) noexcept;
-  window &set_size(uint32_t width, uint32_t height) noexcept;
-  window &set_min_size(uint32_t width, uint32_t height) noexcept;
-  window &set_max_size(uint32_t width, uint32_t height) noexcept;
 
   std::string get_title() const noexcept;
   sweet::point32_t get_pos() const noexcept;
   sweet::usize32_t get_size() const noexcept;
   sweet::usize32_t get_min_size() const noexcept;
   sweet::usize32_t get_max_size() const noexcept;
-  int32_t get_pos_x() const noexcept;
-  int32_t get_pos_y() const noexcept;
-  uint32_t get_size_width() const noexcept;
-  uint32_t get_size_height() const noexcept;
-  uint32_t get_min_size_width() const noexcept;
-  uint32_t get_min_size_height() const noexcept;
-  uint32_t get_max_size_width() const noexcept;
-  uint32_t get_max_size_height() const noexcept;
 
   [[nodiscard]]
   SDL_Window *get_sdl_window() const noexcept;
