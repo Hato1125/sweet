@@ -59,6 +59,13 @@ std::expected<void, std::string> renderer::destroy() noexcept {
   return{ };
 }
 
+void renderer::rendering(const std::function<void ()> &rendering) noexcept {
+  clear();
+  if(rendering)
+    rendering();
+  present();
+}
+
 renderer &renderer::flush() noexcept {
   SDL_RenderFlush(get_sdl_renderer());
   return *this;

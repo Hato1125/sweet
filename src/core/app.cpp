@@ -75,6 +75,9 @@ void app::run(const app_run_callbacks &run) noexcept {
 
   SDL_Event sdl_event;
   while(!_is_finish) {
+    if(run.loop.on_begin)
+      run.loop.on_begin();
+
     while(SDL_PollEvent(&sdl_event)) {
       if(is_auto_finish && sdl_event.type == SDL_QUIT)
         goto FINISH;
@@ -86,10 +89,10 @@ void app::run(const app_run_callbacks &run) noexcept {
     if(run.loop.on_update)
       run.loop.on_update();
 
-    renderer.clear();
-    if(run.loop.on_render)
-      run.loop.on_render();
-    renderer.present();
+    renderer.rendering(run.loop.on_render);
+
+    if(run.loop.on_end)
+      run.loop.on_end();
   }
 FINISH:
 

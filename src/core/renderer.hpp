@@ -27,6 +27,7 @@
 #include <string>
 #include <memory>
 #include <expected>
+#include <functional>
 
 #include <SDL_render.h>
 
@@ -42,6 +43,8 @@ public:
 
   std::expected<void, std::string> create() noexcept;
   std::expected<void, std::string> destroy() noexcept;
+
+  void rendering(const std::function<void()> &rendering) noexcept;
 
   renderer &flush() noexcept;
   renderer &clear() noexcept;

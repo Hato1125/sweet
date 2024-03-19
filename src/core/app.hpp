@@ -43,9 +43,11 @@ struct app_init_callbacks {
 };
 
 struct app_loop_callbacks {
+  std::function<void()> on_begin;
   std::function<void(SDL_Event&)> on_event;
   std::function<void()> on_update;
   std::function<void()> on_render;
+  std::function<void()> on_end;
 };
 
 struct app_end_callbacks {

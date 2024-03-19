@@ -53,7 +53,7 @@ struct resource_provider {
   }
 };
 
-template <typename Type, uint32_t Split = 4>
+template <typename Type, uint32_t Split = 4u>
 class basic_resource_bundle {
 static_assert(
   Split > 0u,
