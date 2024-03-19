@@ -34,6 +34,7 @@
 
 #include "resource.hpp"
 #include "parallel.hpp"
+#include "type_provider.hpp"
 #include "texture.hpp"
 #include "font.hpp"
 
@@ -43,14 +44,6 @@ enum class bundle_state {
   loaded,
   unloaded,
   released
-};
-
-template <typename Type>
-struct resource_provider {
-  const std::shared_ptr<Type> &value;
-  resource_provider(const std::shared_ptr<Type> &value)
-    noexcept : value{ value } {
-  }
 };
 
 template <typename Type, uint32_t Split = 4u>
@@ -158,7 +151,7 @@ public:
     return{ };
   }
 
-  std::optional<resource_provider<Type>> get(const resource_name &name) noexcept {
+  std::optional<sweet::type_provider<resource_elem>> get(const resource_name &name) noexcept {
     if(_resources.contains(name))
       return { _resources[name] };
 
@@ -167,7 +160,7 @@ public:
     return std::nullopt;
   }
 
-  const std::optional<resource_provider<Type>> get(const resource_name &name) const noexcept {
+  const std::optional<sweet::type_provider<resource_elem>> get(const resource_name &name) const noexcept {
     if(_resources.contains(name))
       return { _resources[name] };
 
@@ -200,11 +193,11 @@ public:
     return _resources.end();
   }
 
-  std::optional<resource_provider<Type>> operator[](const resource_name &name) noexcept {
+  std::optional<sweet::type_provider<resource_elem>> operator[](const resource_name &name) noexcept {
     return get(name);
   }
 
-  const std::optional<resource_provider<Type>> operator[](const resource_name &name) const noexcept {
+  const std::optional<sweet::type_provider<resource_elem>> operator[](const resource_name &name) const noexcept {
     return get(name);
   }
 
@@ -271,10 +264,10 @@ private:
   }
 };
 
-template <uint32_t Split = 4>
+template <uint32_t Split = 4u>
 using texture_bundle = basic_resource_bundle<sweet::texture, Split>;
 
-template <uint32_t Split = 4>
+template <uint32_t Split = 4u>
 using font_bundle = basic_resource_bundle<sweet::font, Split>;
 }
 
