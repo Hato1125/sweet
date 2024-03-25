@@ -34,6 +34,8 @@
 
 #include "resource.hpp"
 #include "parallel.hpp"
+#include "font.hpp"
+#include "texture.hpp"
 
 namespace sweet {
 enum class resource_load_state : int8_t {
@@ -230,6 +232,20 @@ private:
     return _empty_resource;
   }
 };
+
+// There is a null error.
+template <size_t DivisionNum = 4u>
+using texture_manager = basic_resource_manager<sweet::texture, DivisionNum, true>;
+
+template <size_t DivisionNum = 4u>
+using font_manager = basic_resource_manager<sweet::font, DivisionNum, true>;
+
+// Not null error.
+template <size_t DivisionNum = 4u>
+using texture_manager_not_null_err = basic_resource_manager<sweet::texture, DivisionNum, false>;
+
+template <size_t DivisionNum = 4u>
+using font_manager_not_null_err = basic_resource_manager<sweet::font, DivisionNum, false>;
 }
 
 #endif

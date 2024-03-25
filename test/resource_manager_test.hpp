@@ -9,7 +9,7 @@
 
 namespace sweet::test {
 struct resource_manager_test : public sweet::test::test {
-  sweet::basic_resource_manager<sweet::texture> texture_manager {
+  sweet::texture_manager<> texture_manager {
     std::make_shared<sweet::texture>(main::app.renderer),
     {
       { "Test1", std::make_shared<sweet::texture>(main::app.renderer, main::app.get_current_dire_s() + "/test1.png") },
