@@ -62,14 +62,17 @@ using resource_array      = std::array<std::vector<resource_name>, DivisionNum>;
 using process_return_type = std::expected<void, std::string>;
 
 public:
+  basic_resource_manager()
+    noexcept: _state{ resource_load_state::idle },
+              _empty_resource{ nullptr } {
+  }
+
   basic_resource_manager(
     const resource_elem &empty,
     const resource_map &resources
-  ) : _state{ resource_load_state::idle },
-      _empty_resource{ empty },
-      _resources{ resources } {
-    if(!_empty_resource && IsNullError)
-      throw std::runtime_error("Empty resource cannot be set to null.");
+  ) noexcept: _state{ resource_load_state::idle },
+              _empty_resource{ empty },
+              _resources{ resources } {
     _dividing_resources();
   }
 
@@ -85,7 +88,9 @@ public:
   }
 
   std::expected<void, std::string> load() noexcept {
-    if(_state == resource_load_state::loaded)
+    if(_resources.empty())
+      return std::unexpected{ "There are no resources to load." };
+    else if(_state == resource_load_state::loaded)
       return std::unexpected{ "Already loaded." };
     else if(_state == resource_load_state::unloaded)
       return std::unexpected{ "Already unloaded." };
@@ -97,7 +102,9 @@ public:
   }
 
   std::expected<void, std::string> unload() noexcept {
-    if(_state == resource_load_state::unloaded)
+    if(_resources.empty())
+      return std::unexpected{ "There are no resources to load." };
+    else if(_state == resource_load_state::unloaded)
       return std::unexpected{ "Already loaded." };
     else if(_state == resource_load_state::idle)
       return std::unexpected{ "Not loaded yet." };
@@ -112,7 +119,9 @@ public:
   }
 
   std::expected<void, std::string> release() noexcept {
-    if(_state == resource_load_state::released)
+    if(_resources.empty())
+      return std::unexpected{ "There are no resources to load." };
+    else if(_state == resource_load_state::released)
       return std::unexpected{ "Already released." };
     else if(_state == resource_load_state::unloaded)
       return std::unexpected{ "Already unloaded." };
