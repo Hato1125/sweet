@@ -4,7 +4,7 @@
 #include "texture_test.hpp"
 #include "keyboard_test.hpp"
 #include "game_controller_test.hpp"
-#include "resource_bundle_test.hpp"
+#include "resource_manager_test.hpp"
 
 namespace sweet::test {
 sweet::app main::app{ };
@@ -15,7 +15,7 @@ std::map<std::string, std::shared_ptr<sweet::test::test>> main::tests {
   { "texture_test", std::make_shared<sweet::test::texture_test>() },
   { "keyboard_test", std::make_shared<sweet::test::keyboard_test>() },
   { "game_controller_test", std::make_shared<sweet::test::game_controller_test>() },
-  { "resource_bundle_test", std::make_shared<sweet::test::resource_bundle_test>() },
+  { "resource_manager_test", std::make_shared<sweet::test::resource_manager_test>() }
 };
 
 std::expected<void, std::string> main::init(int argc, char **argv) noexcept {
