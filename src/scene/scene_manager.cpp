@@ -36,10 +36,7 @@ void scene_manager::regist(
 ) noexcept {
   if(_scenes.contains(name) || name.empty())
     return;
-
   _scenes.insert({ name, scene });
-  if(_current_scene_name.empty())
-    change(name);
 }
 
 void scene_manager::regist(
