@@ -37,10 +37,9 @@ void scene_manager::regist(
   if(_scenes.contains(name) || name.empty())
     return;
 
-  if(_current_scene_name.empty())
-    _current_scene_name = name;
-
   _scenes.insert({ name, scene });
+  if(_current_scene_name.empty())
+    change(name);
 }
 
 void scene_manager::regist(
@@ -56,14 +55,17 @@ void scene_manager::remove(const std::string &name) noexcept {
 }
 
 void scene_manager::change(const std::string &name) noexcept {
-  if(_scenes.contains(name))
+  if(!_scenes.contains(name))
     return;
 
-  if(!_current_scene_name.empty())
+  if(!_current_scene_name.empty()) {
     _scenes[_current_scene_name]->inactive();
+    _scenes[_current_scene_name]->state = sweet::scene_state::inactive;
+  }
 
   _current_scene_name = name;
   _scenes[_current_scene_name]->active();
+  _scenes[_current_scene_name]->state = sweet::scene_state::active;
 }
 
 void scene_manager::update() {

@@ -1,12 +1,34 @@
 #ifndef _LIBSWEET_TEST_TEST_HPP
 #define _LIBSWEET_TEST_TEST_HPP
 
-namespace sweet::test {
-struct test {
-  virtual void init() noexcept { }
-  virtual void update() noexcept { }
-  virtual void render() noexcept { }
-  virtual void finish() noexcept { }
+#include <stdexcept>
+#include <string>
+#include <map>
+
+#include <scene.hpp>
+
+#include "box_test.hpp"
+#include "font_test.hpp"
+#include "texture_test.hpp"
+#include "keyboard_test.hpp"
+#include "game_controller_test.hpp"
+
+namespace test {
+class test_scene : public sweet::scene {
+  public:
+  test_scene(const std::string &name) {
+    std::map<std::string, std::shared_ptr<sweet::scene_element>> tests {
+      { "Box", std::make_shared<test::box_test>() },
+      { "Font", std::make_shared<test::font_test>() },
+      { "Texture", std::make_shared<test::texture_test>() },
+      { "keyboard", std::make_shared<test::keyboard_test>() },
+      { "GameController", std::make_shared<test::game_controller_test>() },
+    };
+
+    if(!tests.contains(name))
+      throw std::runtime_error("There is no \"" + name +"\" test.");
+    elements.push_back(tests[name]);
+  }
 };
 }
 
