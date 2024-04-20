@@ -5,6 +5,10 @@
 #include "main.hpp"
 #include "test.hpp"
 
+#ifdef main
+# undef main
+#endif
+
 namespace test {
 sweet::app app_state::app{};
 sweet::frame_monitor app_state::monitor{};

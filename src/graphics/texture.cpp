@@ -240,7 +240,7 @@ std::expected<void, std::string> texture::load_impl() noexcept {
   if(get_sdl_texture())
     return std::unexpected{ "The texture is already loaded." };
 
-  SDL_Surface *sdl_surface = IMG_Load(_path.c_str());
+  SDL_Surface *sdl_surface = IMG_Load(_path.string().c_str());
   if(!sdl_surface)
     return std::unexpected{ "Failed to load image." };
 
