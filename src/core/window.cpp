@@ -73,6 +73,31 @@ window &window::hide() noexcept {
   return *this;
 }
 
+window &window::enable_resize() noexcept {
+  SDL_SetWindowResizable(get_sdl_window(), SDL_TRUE);
+  return *this;
+}
+
+window &window::disable_resize() noexcept {
+  SDL_SetWindowResizable(get_sdl_window(), SDL_FALSE);
+  return *this;
+}
+
+window &window::maximize() noexcept {
+  SDL_MaximizeWindow(get_sdl_window());
+  return *this;
+}
+
+window &window::minimize() noexcept {
+  SDL_MinimizeWindow(get_sdl_window());
+  return *this;
+}
+
+window &window::restore() noexcept {
+  SDL_RestoreWindow(get_sdl_window());
+  return *this;
+}
+
 window &window::set_title(const std::string &title) noexcept {
   SDL_SetWindowTitle(get_sdl_window(), title.c_str());
   return *this;

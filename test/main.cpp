@@ -28,6 +28,11 @@ int main(int argc, char **argv) {
       }
     }
   });
+  test::app_state::app.window
+    .enable_resize()
+    .set_size({ 1280, 720 })
+    .set_min_size({ 1280, 720 })
+    .set_max_size({ 1920, 1080 });
 
   test::app_state::app.run({
     .loop {
@@ -44,6 +49,16 @@ int main(int argc, char **argv) {
 
         if(sweet::keyboard::is_separate(SDL_SCANCODE_ESCAPE))
           test::app_state::app.end();
+        else if(sweet::keyboard::is_separate(SDL_SCANCODE_Q))
+          test::app_state::app.window.maximize();
+        else if(sweet::keyboard::is_separate(SDL_SCANCODE_W))
+          test::app_state::app.window.minimize();
+        else if(sweet::keyboard::is_separate(SDL_SCANCODE_E))
+          test::app_state::app.window.restore();
+        else if(sweet::keyboard::is_separate(SDL_SCANCODE_R))
+          test::app_state::app.window.enable_resize();
+        else if(sweet::keyboard::is_separate(SDL_SCANCODE_T))
+          test::app_state::app.window.disable_resize();
 
         sweet::scene_manager::update();
       },

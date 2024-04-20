@@ -44,6 +44,11 @@ public:
 
   window &show() noexcept;
   window &hide() noexcept;
+  window &enable_resize() noexcept;
+  window &disable_resize() noexcept;
+  window &maximize() noexcept;
+  window &minimize() noexcept;
+  window &restore() noexcept;
   window &set_title(const std::string &title) noexcept;
   window &set_pos(const sweet::point32_t &pos) noexcept;
   window &set_size(const sweet::usize32_t &size) noexcept;
