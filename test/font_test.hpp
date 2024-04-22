@@ -17,7 +17,7 @@ struct font_test : public sweet::scene_element {
   void active() override {
     font = std::make_unique<sweet::font>(
       test::app_state::app.renderer,
-      test::app_state::app.get_current_dire_s() + "/test.ttf"
+      test::app_state::app.get_current_dire() + "/test.ttf"
     );
 
     if(auto rs = font->load(); !rs)

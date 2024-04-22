@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
         sweet::game_controller_manager::update();
 
         if(sweet::keyboard::is_separate(SDL_SCANCODE_ESCAPE))
-          test::app_state::app.end();
+          test::app_state::app.exit();
         else if(sweet::keyboard::is_separate(SDL_SCANCODE_Q))
           test::app_state::app.window.maximize();
         else if(sweet::keyboard::is_separate(SDL_SCANCODE_W))

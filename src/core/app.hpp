@@ -27,7 +27,6 @@
 #include <string>
 #include <expected>
 #include <functional>
-#include <filesystem>
 
 #include <SDL_ttf.h>
 #include <SDL_video.h>
@@ -62,8 +61,6 @@ struct app_run_callbacks {
 
 class app {
 public:
-  bool is_auto_finish;
-
   sweet::window window;
   sweet::renderer renderer;
 
@@ -73,23 +70,24 @@ public:
   std::expected<void, std::string> init(
     int argc,
     char **argv,
-    const app_init_callbacks &init = { }
+    const app_init_callbacks &init = {}
   ) noexcept;
 
-  void run(const app_run_callbacks &run = { }) noexcept;
-  void end() noexcept;
+  app &enable_auto_exit() noexcept;
+  app &disable_auto_exit() noexcept;
 
-  std::filesystem::path get_current_path() const noexcept;
-  std::filesystem::path get_current_dire() const noexcept;
+  void run(const app_run_callbacks &run = {}) noexcept;
+  void exit() noexcept;
 
-  std::string get_current_path_s() const noexcept;
-  std::string get_current_dire_s() const noexcept;
+  std::string get_current_path() const noexcept;
+  std::string get_current_dire() const noexcept;
 
 private:
-  bool _is_finish;
+  bool _is_exit;
+  bool _is_auto_exit;
 
-  std::filesystem::path _current_path;
-  std::filesystem::path _current_dire;
+  std::string _current_path;
+  std::string _current_dire;
 };
 }
 

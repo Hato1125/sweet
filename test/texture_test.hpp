@@ -16,7 +16,7 @@ struct texture_test : public sweet::scene_element {
   void active() override {
     texture = std::make_unique<sweet::texture>(
       test::app_state::app.renderer,
-      test::app_state::app.get_current_dire_s() + "/test.png"
+      test::app_state::app.get_current_dire() + "/test.png"
     );
 
     if(auto rs = texture->load(); !rs)
