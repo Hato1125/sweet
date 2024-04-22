@@ -23,39 +23,54 @@
 
 #include <SDL_timer.h>
 
-#include "frame_monitor.hpp"
+#include "frame.hpp"
 
 namespace sweet {
-void frame_monitor::begin() noexcept {
-  while(!SDL_TICKS_PASSED(SDL_GetTicks(), _ticks_count + _limmit_ms));
+frame::frame()
+  noexcept: _limmit_sec{ 1000.f / 60.f },
+            _update_frame_rate_sec{ 1.f } {
+}
 
-  _delta_time = (SDL_GetTicks() - _ticks_count) / 1000.;
+void frame::begin() noexcept {
+  if(_limmit_sec != -1.f)
+    while(!SDL_TICKS_PASSED(SDL_GetTicks(), _ticks_count + _limmit_sec));
+
+  _frame_sec = (SDL_GetTicks() - _ticks_count) / 1000.f;
   _ticks_count = SDL_GetTicks();
 }
 
-void frame_monitor::end() noexcept {
-  _one_sec_timer += _delta_time;
-  ++_frame_count;
-  if(_one_sec_timer >= 1.0) {
-    _frame_rate = _frame_count;
+void frame::end() noexcept {
+  _one_sec_timer += _frame_sec;
+  _update_sec_timer += _frame_sec;
+
+  _frame_count++;
+  if(_one_sec_timer >= 1.f) {
+    _frame_rate_buf = _frame_count;
     _frame_count = 0;
-    _one_sec_timer = 0.;
+    _one_sec_timer = 0.f;
+  }
+
+  if(_update_sec_timer >= _update_frame_rate_sec) {
+    _frame_rate = _frame_rate_buf;
+    _update_sec_timer = 0.f;
   }
 }
 
-void frame_monitor::set_max_frame_rate(double fps) noexcept {
-  _limmit_ms = 1000. / fps;
+frame &frame::set_max_frame_rate(float fps) noexcept {
+  _limmit_sec = fps <= 0.f ? -1.f : 1000.f / fps;
+  return *this;
 }
 
-float frame_monitor::get_delta_time_f32() const noexcept {
-  return static_cast<float>(_delta_time);
+frame &frame::set_update_frame_rate_sec(float sec) noexcept {
+  _update_frame_rate_sec = sec <= 0.f ? 1.f : sec;
+  return *this;
 }
 
-double frame_monitor::get_delta_time_f64() const noexcept {
-  return _delta_time;
+float frame::get_frame_sec() const noexcept {
+  return _frame_sec;
 }
 
-int32_t frame_monitor::get_frame_rate() const noexcept {
+int32_t frame::get_frame_rate() const noexcept {
   return _frame_rate;
 }
 }

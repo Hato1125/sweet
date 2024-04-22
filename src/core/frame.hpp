@@ -27,23 +27,29 @@
 #include <cstdint>
 
 namespace sweet {
-class frame_monitor {
+class frame {
 public:
+  frame() noexcept;
+
   void begin() noexcept;
   void end() noexcept;
 
-  void set_max_frame_rate(double fps) noexcept;
+  frame &set_max_frame_rate(float fps) noexcept;
+  frame &set_update_frame_rate_sec(float sec) noexcept;
 
-  float get_delta_time_f32() const noexcept;
-  double get_delta_time_f64() const noexcept;
+  float get_frame_sec() const noexcept;
   int32_t get_frame_rate() const noexcept;
 
 private:
-  double _limmit_ms;
-  double _delta_time;
-  double _one_sec_timer;
+  float _frame_sec;
+  float _limmit_sec;
+  float _one_sec_timer;
+  float _update_sec_timer;
+  float _update_frame_rate_sec;
+
   int32_t _ticks_count;
   int32_t _frame_count;
+  int32_t _frame_rate_buf;
   int32_t _frame_rate;
 };
 }

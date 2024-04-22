@@ -1,3 +1,4 @@
+#include <iostream>
 #include <keyboard.hpp>
 #include <game_controller_manager.hpp>
 #include <scene_manager.hpp>
@@ -11,7 +12,7 @@
 
 namespace test {
 sweet::app app_state::app{};
-sweet::frame_monitor app_state::monitor{};
+sweet::frame app_state::monitor{};
 }
 
 int main(int argc, char **argv) {
@@ -28,11 +29,19 @@ int main(int argc, char **argv) {
       }
     }
   });
+
   test::app_state::app.window
     .enable_resize()
     .set_size({ 1280, 720 })
     .set_min_size({ 1280, 720 })
     .set_max_size({ 1920, 1080 });
+
+  test::app_state::app.renderer
+    .disable_vsync();
+
+  test::app_state::monitor
+    .set_max_frame_rate(0.f)
+    .set_update_frame_rate_sec(5.f);
 
   test::app_state::app.run({
     .loop {
