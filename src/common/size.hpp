@@ -39,10 +39,6 @@ struct size {
     noexcept : width{ }, height{ } {
   }
 
-  constexpr size(Type v)
-    noexcept : width{ v }, height{ v } {
-  }
-
   constexpr size(Type width, Type height)
     noexcept : width{ width }, height{ height } {
   }

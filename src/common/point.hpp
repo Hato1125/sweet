@@ -39,10 +39,6 @@ struct point {
     noexcept : x{ }, y{ } {
   }
 
-  constexpr point(Type v)
-    noexcept : x{ v }, y{ v } {
-  }
-
   constexpr point(Type x, Type y)
     noexcept : x{ x }, y{ y } {
   }

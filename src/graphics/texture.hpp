@@ -65,25 +65,42 @@ public:
   void render(
     float x,
     float y,
-    const sweet::rect32_t &rect = { }
+    int32_t rect_x = 0,
+    int32_t rect_y = 0,
+    int32_t rect_width = 0,
+    int32_t rect_height = 0
+  ) noexcept;
+
+  void render(
+    const sweet::point<float> &point,
+    int32_t rect_x = 0,
+    int32_t rect_y = 0,
+    int32_t rect_width = 0,
+    int32_t rect_height = 0
   ) noexcept;
 
   void render(
     float x,
     float y,
-    const sweet::point32_t &pos,
-    const sweet::size32_t &size
+    const sweet::point<int32_t> &clip_point,
+    const sweet::size<int32_t> &clip_size
   ) noexcept;
 
   void render(
-    const sweet::fpoint32_t &point,
-    const sweet::rect32_t &rect = { }
+    const sweet::point<float> &point,
+    const sweet::point<int32_t> &clip_point,
+    const sweet::size<int32_t> &clip_size
   ) noexcept;
 
   void render(
-    const sweet::fpoint32_t &point,
-    const sweet::point32_t &pos,
-    const sweet::size32_t &size
+    float x,
+    float y,
+    const sweet::rect<int32_t> &clip
+  ) noexcept;
+
+  void render(
+    const sweet::point<float> &point,
+    const sweet::rect<int32_t> &clip
   ) noexcept;
 
   texture &set_alpha(uint32_t alpha) noexcept;

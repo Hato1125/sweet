@@ -32,7 +32,6 @@
 
 #include "point.hpp"
 #include "size.hpp"
-#include "rect.hpp"
 
 namespace sweet {
 class window {

@@ -21,6 +21,7 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
+#include "rect.hpp"
 #include "window.hpp"
 
 namespace sweet {
