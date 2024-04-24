@@ -21,59 +21,34 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#include "game_controller_manager.hpp"
+#ifndef _LIBSWEET_INPUT_GAME_CONTROLLER_MANAGER_HPP
+#define _LIBSWEET_INPUT_GAME_CONTROLLER_MANAGER_HPP
+
+#include <cstdint>
+#include <vector>
+
+#include "gamecontroller.hpp"
 
 namespace sweet {
-sweet::game_controller game_controller_manager::_empty_controller{ -1 };
-std::vector<sweet::game_controller> game_controller_manager::_controllers{ };
+class gamecontroller_manager final {
+using gamecontroller_it = std::vector<sweet::gamecontroller>::iterator;
 
-void game_controller_manager::update() noexcept {
-  for(auto &controller : _controllers)
-    controller.update();
-}
+public:
+  static void update() noexcept;
+  static void update_event(const SDL_Event &e) noexcept;
 
-void game_controller_manager::update_event(const SDL_Event &e) noexcept {
-  switch(e.type) {
-    case SDL_CONTROLLERDEVICEADDED: {
-      _add_game_controller(e.cdevice.which);
-    } break;
-    case SDL_CONTROLLERDEVICEREMOVED: {
-      _remove_game_controller(e.cdevice.which);
-    } break;
-    default: {
-      for(auto &controller : _controllers)
-        controller.update_event(e);
-    } break;
-  }
+  static sweet::gamecontroller &get(int32_t index) noexcept;
+  static gamecontroller_it begin() noexcept;
+  static gamecontroller_it end() noexcept;
+
+private:
+  static sweet::gamecontroller _empty_controller;
+  static std::vector<sweet::gamecontroller> _controllers;
+
+  static void _add_gamecontroller(int32_t index) noexcept;
+  static void _remove_gamecontroller(int32_t index) noexcept;
+  static gamecontroller_it _find_joystick_it(int32_t index) noexcept;
+};
 }
 
-sweet::game_controller &sweet::game_controller_manager::get(
-  int32_t joystick_index
-) noexcept {
-  auto it =find_joystick_index(joystick_index);
-  if(it != _controllers.end())
-    return *it;
-  return _empty_controller;
-}
-
-void game_controller_manager::_add_game_controller(int32_t joystick_index) noexcept {
-  sweet::game_controller controller{ joystick_index };
-  if(auto result = controller.create(); result)
-    _controllers.push_back(std::move(controller));
-}
-
-void game_controller_manager::_remove_game_controller(int32_t joystick_index) noexcept {
-  _controllers.erase(find_joystick_index(joystick_index));
-}
-
-std::vector<sweet::game_controller>::iterator game_controller_manager::find_joystick_index(
-  int32_t joystick_index
-) noexcept {
-  return std::find_if(
-    _controllers.begin(),
-    _controllers.end(),
-    [&joystick_index](sweet::game_controller &controller){
-      return joystick_index == controller.get_joystick_index();
-  });
-}
-}
+#endif

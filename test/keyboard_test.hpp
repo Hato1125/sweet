@@ -15,8 +15,8 @@ struct keyboard_test : public sweet::scene_element {
     if(sweet::keyboard::is_pushed(SDL_SCANCODE_W))
       std::cout << "Pushed \"W\"Key.\n";
 
-    if(sweet::keyboard::is_separate(SDL_SCANCODE_S))
-      std::cout << "separate \"S\"Key.\n";
+    if(sweet::keyboard::is_upped(SDL_SCANCODE_S))
+      std::cout << "Upped \"S\"Key.\n";
   }
 };
 }

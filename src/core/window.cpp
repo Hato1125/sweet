@@ -21,7 +21,6 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#include "rect.hpp"
 #include "window.hpp"
 
 namespace sweet {
@@ -33,19 +32,12 @@ std::expected<void, std::string> window::create() noexcept {
   if(_sdl_window)
     return std::unexpected{ "The window has already been created." };
 
-  constexpr sweet::rect<int32_t> window_rect {
-    SDL_WINDOWPOS_CENTERED,
-    SDL_WINDOWPOS_CENTERED,
-    1280,
-    720
-  };
-
   SDL_Window *sdl_window = SDL_CreateWindow(
     nullptr,
-    window_rect.x,
-    window_rect.y,
-    window_rect.width,
-    window_rect.height,
+    1280,
+    720,
+    SDL_WINDOWPOS_CENTERED,
+    SDL_WINDOWPOS_CENTERED,
     SDL_WINDOW_SHOWN
   );
 

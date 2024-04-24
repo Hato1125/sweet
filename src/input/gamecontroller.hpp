@@ -34,9 +34,9 @@
 #include <SDL_gamecontroller.h>
 
 namespace sweet {
-class game_controller {
+class gamecontroller {
 public:
-  game_controller(int32_t joystick_index) noexcept;
+  gamecontroller(int32_t joystick_index) noexcept;
 
   std::expected<void, std::string> create() noexcept;
   std::expected<void, std::string> destroy() noexcept;
@@ -46,15 +46,15 @@ public:
 
   bool is_pushing(SDL_GameControllerButton button) const noexcept;
   bool is_pushed(SDL_GameControllerButton button) const noexcept;
-  bool is_separate(SDL_GameControllerButton button) const noexcept;
+  bool is_upped(SDL_GameControllerButton button) const noexcept;
 
   int32_t get_joystick_index() const noexcept;
 
   [[nodiscard]]
-  SDL_GameController *get_sdl_game_controller() const noexcept;
+  SDL_GameController *get_sdl_gamecontroller() const noexcept;
 
-  bool operator ==(const game_controller &controller) const noexcept;
-  bool operator !=(const game_controller &controller) const noexcept;
+  bool operator ==(const gamecontroller &controller) const noexcept;
+  bool operator !=(const gamecontroller &controller) const noexcept;
 
   explicit operator bool() const noexcept;
 
@@ -65,7 +65,7 @@ private:
   int32_t _joystick_index;
 
   std::array<int8_t, SDL_CONTROLLER_BUTTON_MAX> _button_state;
-  std::unique_ptr<SDL_GameController, decltype(&SDL_GameControllerClose)> _sdl_game_controller;
+  std::unique_ptr<SDL_GameController, decltype(&SDL_GameControllerClose)> _sdl_gamecontroller;
 
   void _update_button_state() noexcept;
 };

@@ -69,17 +69,16 @@ bool keyboard::is_pushed(SDL_Scancode key) noexcept {
   return _key_state[static_cast<int>(key)] == 2;
 }
 
-bool keyboard::is_separate(SDL_Scancode key) noexcept {
+bool keyboard::is_upped(SDL_Scancode key) noexcept {
   return _key_state[static_cast<int>(key)] == -1;
 }
 
 void keyboard::_update_key_state() noexcept {
   const uint8_t *sdl_key_state = SDL_GetKeyboardState(nullptr);
   for(size_t i = 0; i < _key_state.size(); ++i) {
-    if(sdl_key_state[i])
-      _key_state[i] = is_pushing(static_cast<SDL_Scancode>(i)) ? 1 : 2;
-    else
-      _key_state[i] = is_pushing(static_cast<SDL_Scancode>(i)) ? -1 : 0;
+    _key_state[i] = sdl_key_state[i]
+      ? _key_state[i] = is_pushing(static_cast<SDL_Scancode>(i)) ? 1 : 2
+      : _key_state[i] = is_pushing(static_cast<SDL_Scancode>(i)) ? -1 : 0;
   }
 }
 }

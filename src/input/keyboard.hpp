@@ -41,7 +41,7 @@ public:
 
   static bool is_pushing(SDL_Scancode key) noexcept;
   static bool is_pushed(SDL_Scancode key) noexcept;
-  static bool is_separate(SDL_Scancode key) noexcept;
+  static bool is_upped(SDL_Scancode key) noexcept;
 
 private:
   static bool _is_key_pressed;
