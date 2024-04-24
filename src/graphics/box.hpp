@@ -36,16 +36,16 @@ public:
 
   void fill_render(float x, float y) noexcept;
   void border_render(float x, float y) noexcept;
-  void fill_render(const sweet::fpoint32_t &pos) noexcept;
-  void border_render(const sweet::fpoint32_t &pos) noexcept;
+  void fill_render(const sweet::point<float> &pos) noexcept;
+  void border_render(const sweet::point<float> &pos) noexcept;
 
   box &set_color(const sweet::color &color) noexcept;
-  box &set_size(const sweet::fsize32_t &size) noexcept;
+  box &set_size(const sweet::size<float> &size) noexcept;
   box &set_width(float width) noexcept;
   box &set_height(float height) noexcept;
 
   sweet::color get_color() const noexcept;
-  sweet::fsize32_t get_size() const noexcept;
+  sweet::size<float> get_size() const noexcept;
   float get_width() const noexcept;
   float get_height() const noexcept;
 

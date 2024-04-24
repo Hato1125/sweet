@@ -24,7 +24,7 @@
 #ifndef _LIBSWEET_COMMON_RECT_HPP
 #define _LIBSWEET_COMMON_RECT_HPP
 
-#include <cstdint>
+#include <iostream>
 #include <type_traits>
 
 #include "point.hpp"
@@ -33,7 +33,10 @@
 namespace sweet {
 template <typename Type>
 struct rect {
-  static_assert(std::is_arithmetic<Type>::value == true);
+  static_assert(
+    std::is_arithmetic<Type>::value,
+    "Cannot contain anything other than arithmetic types."
+  );
 
   Type x;
   Type y;
@@ -89,28 +92,19 @@ struct rect {
   }
 };
 
-using urect8_t = rect<uint8_t>;
-using urect16_t = rect<uint16_t>;
-using urect32_t = rect<uint32_t>;
-using urect64_t = rect<uint64_t>;
-
-using urect_fast8_t = rect<uint_fast8_t>;
-using urect_fast16_t = rect<uint_fast16_t>;
-using urect_fast32_t = rect<uint_fast32_t>;
-using urect_fast64_t = rect<uint_fast64_t>;
-
-using rect8_t = rect<int8_t>;
-using rect16_t = rect<int16_t>;
-using rect32_t = rect<int32_t>;
-using rect64_t = rect<int64_t>;
-
-using rect_fast8_t = rect<int_fast8_t>;
-using rect_fast16_t = rect<int_fast16_t>;
-using rect_fast32_t = rect<int_fast32_t>;
-using rect_fast64_t = rect<int_fast64_t>;
-
-using frect32_t = rect<float>;
-using frect64_t = rect<double>;
+template <typename Type>
+std::ostream & operator<<(
+  std::ostream &os,
+  const sweet::rect<Type> &rect
+) {
+  os << "{"
+     << " x: " << rect.x << ","
+     << " y: " << rect.y << ","
+     << " width: " << rect.width << ","
+     << " height: " << rect.height << " "
+     << "}";
+  return os;
+}
 }
 
 #endif

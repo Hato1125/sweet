@@ -96,12 +96,12 @@ renderer &renderer::set_color(const sweet::color &color) noexcept {
   return *this;
 }
 
-renderer &renderer::set_scale(const sweet::fpoint32_t &scale) noexcept {
+renderer &renderer::set_scale(const sweet::point<float> &scale) noexcept {
   SDL_RenderSetScale(get_sdl_renderer(), scale.x, scale.y);
   return *this;
 }
 
-renderer &renderer::set_viewport(const sweet::rect32_t &rect) noexcept {
+renderer &renderer::set_viewport(const sweet::rect<int32_t> &rect) noexcept {
   SDL_Rect viewport{ rect.x, rect.y, rect.width, rect.height };
   SDL_RenderSetViewport(get_sdl_renderer(), &viewport);
   return *this;
@@ -119,8 +119,8 @@ sweet::color renderer::get_color() const noexcept {
   return color;
 }
 
-sweet::fpoint32_t renderer::get_scale() const noexcept {
-  sweet::fpoint32_t scale;
+sweet::point<float> renderer::get_scale() const noexcept {
+  sweet::point<float> scale;
   SDL_RenderGetScale(
     get_sdl_renderer(),
     &scale.x,
@@ -129,7 +129,7 @@ sweet::fpoint32_t renderer::get_scale() const noexcept {
   return scale;
 }
 
-sweet::rect32_t renderer::get_viewport() const noexcept {
+sweet::rect<int32_t> renderer::get_viewport() const noexcept {
   SDL_Rect viewport;
   SDL_RenderGetViewport(get_sdl_renderer(), &viewport);
 

@@ -24,13 +24,16 @@
 #ifndef _LIBSWEET_COMMON_SIZE_HPP
 #define _LIBSWEET_COMMON_SIZE_HPP
 
-#include <cstdint>
+#include <iostream>
 #include <type_traits>
 
 namespace sweet {
 template <typename Type>
 struct size {
-  static_assert(std::is_arithmetic<Type>::value == true);
+  static_assert(
+    std::is_arithmetic<Type>::value,
+    "Cannot contain anything other than arithmetic types."
+  );
 
   Type width;
   Type height;
@@ -68,28 +71,17 @@ struct size {
   }
 };
 
-using usize8_t = size<uint8_t>;
-using usize16_t = size<uint16_t>;
-using usize32_t = size<uint32_t>;
-using usize64_t = size<uint64_t>;
-
-using usize_fast8_t = size<uint_fast8_t>;
-using usize_fast16_t = size<uint_fast16_t>;
-using usize_fast32_t = size<uint_fast32_t>;
-using usize_fast64_t = size<uint_fast64_t>;
-
-using size8_t = size<int8_t>;
-using size16_t = size<int16_t>;
-using size32_t = size<int32_t>;
-using size64_t = size<int64_t>;
-
-using size_fast8_t = size<int_fast8_t>;
-using size_fast16_t = size<int_fast16_t>;
-using size_fast32_t = size<int_fast32_t>;
-using size_fast64_t = size<int_fast64_t>;
-
-using fsize32_t = size<float>;
-using fsize64_t = size<double>;
+template <typename Type>
+std::ostream &operator<<(
+  std::ostream &os,
+  const sweet::size<Type> &size
+) {
+  os << "{"
+     << " width: " << size.width << ","
+     << " height: " << size.height << " "
+     << "}";
+  return os;
+}
 }
 
 #endif

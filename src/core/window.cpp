@@ -33,7 +33,7 @@ std::expected<void, std::string> window::create() noexcept {
   if(_sdl_window)
     return std::unexpected{ "The window has already been created." };
 
-  constexpr sweet::rect32_t window_rect {
+  constexpr sweet::rect<int32_t> window_rect {
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_CENTERED,
     1280,
@@ -104,22 +104,22 @@ window &window::set_title(const std::string &title) noexcept {
   return *this;
 }
 
-window &window::set_pos(const sweet::point32_t &pos) noexcept {
+window &window::set_pos(const sweet::point<int32_t> &pos) noexcept {
   SDL_SetWindowPosition(get_sdl_window(), pos.x, pos.y);
   return *this;
 }
 
-window &window::set_size(const sweet::usize32_t &size) noexcept {
+window &window::set_size(const sweet::size<uint32_t> &size) noexcept {
   SDL_SetWindowSize(get_sdl_window(), size.width, size.height);
   return *this;
 }
 
-window &window::set_min_size(const sweet::usize32_t &size) noexcept {
+window &window::set_min_size(const sweet::size<uint32_t> &size) noexcept {
   SDL_SetWindowMinimumSize(get_sdl_window(), size.width, size.height);
   return *this;
 }
 
-window &window::set_max_size(const sweet::usize32_t &size) noexcept {
+window &window::set_max_size(const sweet::size<uint32_t> &size) noexcept {
   SDL_SetWindowMaximumSize(get_sdl_window(), size.width, size.height);
   return *this;
 }
@@ -128,7 +128,7 @@ std::string window::get_title() const noexcept {
   return SDL_GetWindowTitle(get_sdl_window());
 }
 
-sweet::point32_t window::get_pos() const noexcept {
+sweet::point<int32_t> window::get_pos() const noexcept {
   int32_t x;
   int32_t y;
   SDL_GetWindowPosition(get_sdl_window(), &x, &y);
@@ -136,7 +136,7 @@ sweet::point32_t window::get_pos() const noexcept {
   return{ x, y };
 }
 
-sweet::usize32_t window::get_size() const noexcept {
+sweet::size<uint32_t> window::get_size() const noexcept {
   int32_t width;
   int32_t height;
   SDL_GetWindowSize(get_sdl_window(), &width, &height);
@@ -147,7 +147,7 @@ sweet::usize32_t window::get_size() const noexcept {
   };
 }
 
-sweet::usize32_t window::get_min_size() const noexcept {
+sweet::size<uint32_t> window::get_min_size() const noexcept {
   int32_t width;
   int32_t height;
   SDL_GetWindowMinimumSize(get_sdl_window(), &width, &height);
@@ -158,7 +158,7 @@ sweet::usize32_t window::get_min_size() const noexcept {
   };
 }
 
-sweet::usize32_t window::get_max_size() const noexcept {
+sweet::size<uint32_t> window::get_max_size() const noexcept {
   int32_t width;
   int32_t height;
   SDL_GetWindowMaximumSize(get_sdl_window(), &width, &height);

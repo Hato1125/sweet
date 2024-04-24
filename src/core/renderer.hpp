@@ -52,12 +52,12 @@ public:
   renderer &enable_vsync() noexcept;
   renderer &disable_vsync() noexcept;
   renderer &set_color(const sweet::color &color) noexcept;
-  renderer &set_scale(const sweet::fpoint32_t &scale) noexcept;
-  renderer &set_viewport(const sweet::rect32_t &rect) noexcept;
+  renderer &set_scale(const sweet::point<float> &scale) noexcept;
+  renderer &set_viewport(const sweet::rect<int32_t> &rect) noexcept;
 
   sweet::color get_color() const noexcept;
-  sweet::fpoint32_t get_scale() const noexcept;
-  sweet::rect32_t get_viewport() const noexcept;
+  sweet::point<float> get_scale() const noexcept;
+  sweet::rect<int32_t> get_viewport() const noexcept;
 
   [[nodiscard]]
   SDL_Renderer *get_sdl_renderer() const noexcept;
