@@ -12,8 +12,8 @@ add_include_directories(
 
 target_link_libraries(
   ${PROJECT_NAME}_test PRIVATE
-  ${LIBSDL2}
-  ${LIBSDL2_TTF}
-  ${LIBSDL2_IMG}
+  SDL2::SDL2
+  SDL2_image::SDL2_image
+  SDL2_ttf::SDL2_ttf
   ${PROJECT_NAME}
 )
