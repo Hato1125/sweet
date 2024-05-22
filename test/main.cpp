@@ -20,19 +20,21 @@ int main(int argc, char **argv) {
   if(argc <= 1)
     return EXIT_FAILURE;
 
-  auto rs = test::app_state::app.init(argc, argv, {
-    .on_inited = [&argv](){
-      try {
-        sweet::scene_manager::regist("test", std::make_shared<test::test_scene>(argv[1]));
-        sweet::scene_manager::change("test");
-      } catch(std::runtime_error &e) {
-        std::cerr << e.what() << std::endl;
+  try {
+    test::app_state::app.init(argc, argv, {
+      .on_inited = [&argv](){
+        try {
+          sweet::scene_manager::regist("test", std::make_shared<test::test_scene>(argv[1]));
+          sweet::scene_manager::change("test");
+        } catch(std::runtime_error &e) {
+          std::cerr << e.what() << std::endl;
+        }
       }
-    }
-  });
-
-  if(!rs.has_value())
+    });
+  } catch(std::runtime_error &e) {
+    std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
+  }
 
   test::app_state::app.window
     .enable_resize()

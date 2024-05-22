@@ -19,13 +19,18 @@ struct texture_test : public sweet::scene_element {
       test::app_state::app.get_current_dire() + "/test.png"
     );
 
-    if(auto rs = texture->load(); !rs)
-      std::cout << "texture test > " << rs.error() << std::endl;
+    try {
+      texture->load();
+    } catch(std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
+    }
   }
 
   void inactive() override {
-    if(auto rs = texture->unload(); !rs)
-      std::cout << rs.error() << std::endl;
+    try {
+      texture->unload();
+    } catch(std::runtime_error &e) {
+    }
   }
 
   void render() override {

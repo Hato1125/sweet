@@ -21,39 +21,31 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
+#include <stdexcept>
+
 #include "window.hpp"
 
 namespace sweet {
-window::window()
-  noexcept : _sdl_window{ nullptr, SDL_DestroyWindow } {
-}
-
-std::expected<void, std::string> window::create() noexcept {
+void window::create() {
   if(_sdl_window)
-    return std::unexpected{ "The window has already been created." };
+    return;
 
-  SDL_Window *sdl_window = SDL_CreateWindow(
+  _sdl_window.reset(SDL_CreateWindow(
     nullptr,
     1280,
     720,
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOW_SHOWN
-  );
-
-  if(!sdl_window)
-    return std::unexpected{ "Failed to create SDL_Window." };
-
-  _sdl_window.reset(sdl_window);
-  return{ };
+  ));
+  if(!_sdl_window)
+    throw std::runtime_error("Failed to create SDL_Window.");
 }
 
-std::expected<void, std::string> window::destroy() noexcept {
+void window::destroy() {
   if(!_sdl_window)
-    return std::unexpected{ "Window has not been created yet." };
-
+    throw std::runtime_error("Window has not been created yet.");
   _sdl_window.reset();
-  return{ };
 }
 
 window &window::show() noexcept {

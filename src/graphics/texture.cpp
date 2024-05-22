@@ -78,6 +78,53 @@ texture::texture(sweet::renderer &renderer, SDL_Surface *sdl_surface)
     SDL_FreeSurface(sdl_surface);
 }
 
+void texture::load() {
+  if(get_sdl_texture())
+    return;
+
+  if(!_renderer)
+    throw std::runtime_error("Renderer has not been created.");
+
+  std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)> surface {
+    IMG_Load(_path.string().c_str()),
+    SDL_FreeSurface
+  };
+  if(!surface)
+    throw std::runtime_error("Failed to load image.");
+
+  _sdl_texture.reset(SDL_CreateTextureFromSurface(
+    _renderer.get_sdl_renderer(),
+    surface.get()
+  ));
+  if(!_sdl_texture)
+    throw std::runtime_error("Failed to convert Surface to Texture.");
+
+  _width = surface->w;
+  _height = surface->h;
+  _byte = SDL_BYTESPERPIXEL(surface->format->format) * _width * _height;
+}
+
+void texture::unload() {
+  if(!get_sdl_texture())
+    throw std::runtime_error("There are no textures to discard.");
+
+  _sdl_texture.reset();
+  _path.clear();
+  _width = 0u;
+  _height = 0u;
+  _byte = 0u;
+}
+
+void texture::release() {
+  if(!get_sdl_texture())
+    throw std::runtime_error("There are no textures to discard.");
+
+  _sdl_texture.reset();
+  _width = 0u;
+  _height = 0u;
+  _byte = 0u;
+}
+
 void texture::render(
   float x,
   float y,
@@ -282,57 +329,5 @@ bool texture::operator !=(const texture &texture) const noexcept {
 
 texture::operator bool() const noexcept {
   return get_sdl_texture() != nullptr;
-}
-
-std::expected<void, std::string> texture::load_impl() noexcept {
-  if(!_renderer)
-    return std::unexpected{ "Renderer has not been created." };
-
-  if(get_sdl_texture())
-    return std::unexpected{ "The texture is already loaded." };
-
-  SDL_Surface *sdl_surface = IMG_Load(_path.string().c_str());
-  if(!sdl_surface)
-    return std::unexpected{ "Failed to load image." };
-
-  SDL_Texture *sdl_texture = SDL_CreateTextureFromSurface(
-    _renderer.get_sdl_renderer(),
-    sdl_surface
-  );
-  if(!sdl_texture)
-    return std::unexpected{ "Failed to convert Surface to Texture." };
-
-  _sdl_texture.reset(sdl_texture);
-  _width = sdl_surface->w;
-  _height = sdl_surface->h;
-  _byte = SDL_BYTESPERPIXEL(sdl_surface->format->format) * _width * _height;
-  SDL_FreeSurface(sdl_surface);
-
-  return{ };
-}
-
-std::expected<void, std::string> texture::unload_impl() noexcept {
-  if(!get_sdl_texture())
-    return std::unexpected{ "There are no textures to discard." };
-
-  _sdl_texture.reset();
-  _path.clear();
-  _width = 0u;
-  _height = 0u;
-  _byte = 0u;
-
-  return{ };
-}
-
-std::expected<void, std::string> texture::release_impl() noexcept  {
-  if(!get_sdl_texture())
-    return std::unexpected{ "There are no textures to discard." };
-
-  _sdl_texture.reset();
-  _width = 0u;
-  _height = 0u;
-  _byte = 0u;
-
-  return{ };
 }
 }

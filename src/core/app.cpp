@@ -22,6 +22,7 @@
 /*--------------------------------------------------------------------------------*/
 
 #include <filesystem>
+#include <stdexcept>
 
 #include <SDL_hints.h>
 
@@ -41,40 +42,33 @@ app::~app() noexcept {
   TTF_Quit();
 }
 
-std::expected<void, std::string> app::init(
+void app::init(
   int argc,
   char **argv,
   const app_init_callbacks &init
-) noexcept {
-  {
-    std::filesystem::path current{ argv[0] };
-
-    _current_path = current.string();
-    _current_dire = current.parent_path().string();
-  }
+) {
+  _current_path = argv[0];
+  std::filesystem::path current{ argv[0] };
+  _current_dire = current.parent_path().string();
 
   if(init.on_initing)
     init.on_initing();
 
-  if(auto result = window.create(); !result)
-    return std::unexpected{ result.error() };
-
-  if(auto result = renderer.create(); !result)
-    return std::unexpected{ result.error() };
+  window.create();
+  renderer.create();
 
   if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
-    return std::unexpected{ "Failed to initialize SDL." };
+    throw std::runtime_error("Failed to initialize SDL.");
 
   if(IMG_Init(IMG_INIT_PNG) < 0)
-    return std::unexpected{ "Failed to initialize SDL_image." };
+    throw std::runtime_error("Failed to initialize SDL_image.");
 
   if(TTF_Init() < 0)
-    return std::unexpected{ "Failed to initialize SDL_ttf." };
+    throw std::runtime_error("Failed to initialize SDL_ttf.");
 
   if(init.on_inited)
     init.on_inited();
 
-  return{ };
 }
 
 app &app::enable_auto_exit() noexcept {

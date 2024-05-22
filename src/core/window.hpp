@@ -26,7 +26,6 @@
 
 #include <string>
 #include <memory>
-#include <expected>
 
 #include <SDL_video.h>
 
@@ -36,10 +35,8 @@
 namespace sweet {
 class window {
 public:
-  window() noexcept;
-
-  std::expected<void, std::string> create() noexcept;
-  std::expected<void, std::string> destroy() noexcept;
+  void create();
+  void destroy();
 
   window &show() noexcept;
   window &hide() noexcept;
@@ -69,7 +66,10 @@ public:
   explicit operator bool() const noexcept;
 
 private:
-  std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> _sdl_window;
+  std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> _sdl_window {
+    nullptr,
+    SDL_DestroyWindow
+  };
 };
 }
 

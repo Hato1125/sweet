@@ -25,7 +25,6 @@
 #define _LIBSWEET_CORE_APP_HPP
 
 #include <string>
-#include <expected>
 #include <functional>
 
 #include <SDL_ttf.h>
@@ -67,11 +66,11 @@ public:
   app() noexcept;
   ~app() noexcept;
 
-  std::expected<void, std::string> init(
+  void init(
     int argc,
     char **argv,
     const app_init_callbacks &init = {}
-  ) noexcept;
+  );
 
   app &enable_auto_exit() noexcept;
   app &disable_auto_exit() noexcept;

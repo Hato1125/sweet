@@ -20,18 +20,20 @@ struct font_test : public sweet::scene_element {
       test::app_state::app.get_current_dire() + "/test.ttf"
     );
 
-    if(auto rs = font->load(); !rs)
-      std::cout << "font test > " << rs.error() << std::endl;
-
-    if(auto rs = font->create_text_font("Test font.", { .size = 30 }); !rs)
-      std::cout << "font test > " << rs.error() << std::endl;
-    else
-      font_texture = std::move(rs.value());
+    try {
+      font->load();
+      font_texture = std::move(font->create_text_font("Tst font.", { .size = 30 }));
+    } catch(std::runtime_error &e) {
+      std::cout << e.what() << std::endl;
+    }
   }
 
   void inactive() override {
-    if(auto rs = font->unload(); !rs)
-      std::cout << rs.error() << std::endl;
+    try {
+      font->unload();
+    } catch(std::runtime_error &e) {
+      std::cout << e.what() << std::endl;
+    }
   }
 
   void render() override {
