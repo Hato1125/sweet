@@ -21,14 +21,19 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
+#include <filesystem>
+#include <stdexcept>
+
+#include <SDL_hints.h>
+
 #include "app.hpp"
 
 namespace sweet {
 app::app()
-  noexcept : window{ },
-    renderer{ window },
-    is_auto_finish{ true },
-    _is_finish{ false } {
+  noexcept:  _is_exit{ false },
+             _is_auto_exit{ true },
+             window{ },
+             renderer{ window } {
 }
 
 app::~app() noexcept {
@@ -37,36 +42,43 @@ app::~app() noexcept {
   TTF_Quit();
 }
 
-std::expected<void, std::string> app::init(
+void app::init(
   int argc,
   char **argv,
   const app_init_callbacks &init
-) noexcept {
-  _current_path = std::filesystem::path{ argv[0] };
-  _current_dire = _current_path.parent_path();
+) {
+  _current_path = argv[0];
+  std::filesystem::path current{ argv[0] };
+  _current_dire = current.parent_path().string();
 
   if(init.on_initing)
     init.on_initing();
 
-  if(auto result = window.create(); !result)
-    return std::unexpected{ result.error() };
-
-  if(auto result = renderer.create(); !result)
-    return std::unexpected{ result.error() };
+  window.create();
+  renderer.create();
 
   if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
-    return std::unexpected{ "Failed to initialize SDL." };
+    throw std::runtime_error("Failed to initialize SDL.");
 
   if(IMG_Init(IMG_INIT_PNG) < 0)
-    return std::unexpected{ "Failed to initialize SDL_image." };
+    throw std::runtime_error("Failed to initialize SDL_image.");
 
   if(TTF_Init() < 0)
-    return std::unexpected{ "Failed to initialize SDL_ttf." };
+    throw std::runtime_error("Failed to initialize SDL_ttf.");
 
   if(init.on_inited)
     init.on_inited();
 
-  return{ };
+}
+
+app &app::enable_auto_exit() noexcept {
+  _is_auto_exit = true;
+  return *this;
+}
+
+app &app::disable_auto_exit() noexcept {
+  _is_auto_exit = false;
+  return *this;
 }
 
 void app::run(const app_run_callbacks &run) noexcept {
@@ -74,12 +86,12 @@ void app::run(const app_run_callbacks &run) noexcept {
     return;
 
   SDL_Event sdl_event;
-  while(!_is_finish) {
+  while(!_is_exit) {
     if(run.loop.on_begin)
       run.loop.on_begin();
 
     while(SDL_PollEvent(&sdl_event)) {
-      if(is_auto_finish && sdl_event.type == SDL_QUIT)
+      if(_is_auto_exit && sdl_event.type == SDL_QUIT)
         goto FINISH;
 
       if(run.loop.on_event)
@@ -107,23 +119,15 @@ FINISH:
       run.end.on_finished();
 }
 
-void app::end() noexcept {
-  _is_finish = true;
+void app::exit() noexcept {
+  _is_exit = true;
 }
 
-std::filesystem::path app::get_current_path() const noexcept {
+std::string app::get_current_path() const noexcept {
   return _current_path;
 }
 
-std::filesystem::path app::get_current_dire() const noexcept {
+std::string app::get_current_dire() const noexcept {
   return _current_dire;
-}
-
-std::string app::get_current_path_s() const noexcept {
-  return _current_path.string();
-}
-
-std::string app::get_current_dire_s() const noexcept {
-  return _current_dire.string();
 }
 }

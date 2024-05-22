@@ -21,29 +21,59 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_COMMON_TYPE_PROVIDER_HPP
-#define _LIBSWEET_COMMON_TYPE_PROVIDER_HPP
+#include "scene_manager.hpp"
 
 namespace sweet {
-template <typename Type>
-class type_provider {
-public:
-  type_provider(const Type &value)
-    noexcept: _value{ value } {
-  }
+using shared_scene = std::shared_ptr<sweet::scene>;
+using shared_scene_elem = std::shared_ptr<sweet::scene_element>;
 
-  const Type &get() const noexcept {
-    return _value;
-  }
+std::string scene_manager::_current_scene_name{};
+std::map<std::string, shared_scene> scene_manager::_scenes{};
 
-  const Type &operator()() const noexcept {
-    return _value;
-  }
-
-private:
-  const Type &_value;
-};
+void scene_manager::regist(
+  const std::string &name,
+  const shared_scene &scene
+) noexcept {
+  if(_scenes.contains(name) || name.empty())
+    return;
+  _scenes.insert({ name, scene });
 }
 
-#endif
+void scene_manager::regist(
+  const std::map<const std::string, const shared_scene> &scenes
+) noexcept {
+  for(auto &scene : scenes)
+    regist(scene.first, scene.second);
+}
 
+void scene_manager::remove(const std::string &name) noexcept {
+  if(_scenes.contains(name))
+    _scenes.erase(name);
+}
+
+void scene_manager::change(const std::string &name) noexcept {
+  if(!_scenes.contains(name))
+    return;
+
+  if(!_current_scene_name.empty()) {
+    _scenes[_current_scene_name]->inactive();
+    _scenes[_current_scene_name]->state = sweet::scene_state::inactive;
+  }
+
+  _current_scene_name = name;
+  _scenes[_current_scene_name]->active();
+  _scenes[_current_scene_name]->state = sweet::scene_state::active;
+}
+
+void scene_manager::update() {
+  if(_current_scene_name.empty())
+    return;
+  _scenes[_current_scene_name]->update();
+}
+
+void scene_manager::render() {
+  if(_current_scene_name.empty())
+    return;
+  _scenes[_current_scene_name]->render();
+}
+}

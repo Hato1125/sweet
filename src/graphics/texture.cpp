@@ -78,31 +78,76 @@ texture::texture(sweet::renderer &renderer, SDL_Surface *sdl_surface)
     SDL_FreeSurface(sdl_surface);
 }
 
+void texture::load() {
+  if(get_sdl_texture())
+    return;
+
+  if(!_renderer)
+    throw std::runtime_error("Renderer has not been created.");
+
+  std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)> surface {
+    IMG_Load(_path.string().c_str()),
+    SDL_FreeSurface
+  };
+  if(!surface)
+    throw std::runtime_error("Failed to load image.");
+
+  _sdl_texture.reset(SDL_CreateTextureFromSurface(
+    _renderer.get_sdl_renderer(),
+    surface.get()
+  ));
+  if(!_sdl_texture)
+    throw std::runtime_error("Failed to convert Surface to Texture.");
+
+  _width = surface->w;
+  _height = surface->h;
+  _byte = SDL_BYTESPERPIXEL(surface->format->format) * _width * _height;
+}
+
+void texture::unload() {
+  if(!get_sdl_texture())
+    throw std::runtime_error("There are no textures to discard.");
+
+  _sdl_texture.reset();
+  _path.clear();
+  _width = 0u;
+  _height = 0u;
+  _byte = 0u;
+}
+
+void texture::release() {
+  if(!get_sdl_texture())
+    throw std::runtime_error("There are no textures to discard.");
+
+  _sdl_texture.reset();
+  _width = 0u;
+  _height = 0u;
+  _byte = 0u;
+}
+
 void texture::render(
   float x,
   float y,
-  const sweet::rect32_t &rect
+  int32_t rect_x,
+  int32_t rect_y,
+  int32_t rect_width,
+  int32_t rect_height
 ) noexcept {
   if(!get_sdl_texture())
     return;
 
-  if(rect.x == 0 && rect.y == 0 && rect.width == 0 && rect.height == 0) {
-    _s_clip_rect.w = _width;
-    _s_clip_rect.h = _height;
-  } else {
-    _s_clip_rect.w = rect.width;
-    _s_clip_rect.h = rect.height;
-  }
-  _s_clip_rect.x = rect.x;
-  _s_clip_rect.y = rect.y;
+  bool not_clip = rect_x == 0 && rect_y == 0 && rect_width == 0 && rect_height == 0;
+  _s_clip_rect.w = not_clip ? _width : rect_width;
+  _s_clip_rect.h = not_clip ? _height : rect_height;
+
+  _s_clip_rect.x = rect_x;
+  _s_clip_rect.y = rect_y;
 
   _s_render_rect.w = _s_clip_rect.w * scale_width;
   _s_render_rect.h = _s_clip_rect.h * scale_height;
 
-  _s_rotation_point = {
-    sweet::get_horizontal_pos(_s_render_rect.w, rotation_h_pos),
-    sweet::get_vertical_pos(_s_render_rect.h, rotation_v_pos)
-  };
+  _s_rotation_point.x = sweet::get_horizontal_pos(_s_render_rect.w, rotation_h_pos);
+  _s_rotation_point.y = sweet::get_vertical_pos(_s_render_rect.h, rotation_v_pos);
 
   float r_h_pos = sweet::get_horizontal_pos(_s_render_rect.w, render_h_pos);
   float r_v_pos = sweet::get_vertical_pos(_s_render_rect.h, render_v_pos);
@@ -127,27 +172,80 @@ void texture::render(
 }
 
 void texture::render(
+  const sweet::point<float> &point,
+  int32_t rect_x,
+  int32_t rect_y,
+  int32_t rect_width,
+  int32_t rect_height
+) noexcept {
+  render(
+    point.x,
+    point.y,
+    rect_x,
+    rect_y,
+    rect_width,
+    rect_height
+  );
+}
+
+void texture::render(
   float x,
   float y,
-  const sweet::point32_t &pos,
-  const sweet::size32_t &size
+  const sweet::point<int32_t> &clip_point,
+  const sweet::size<int32_t> &clip_size
 ) noexcept {
-  render(x, y, pos, size);
+  render(
+    x,
+    y,
+    clip_point.x,
+    clip_point.y,
+    clip_size.width,
+    clip_size.height
+  );
 }
 
 void texture::render(
-  const sweet::fpoint32_t &point,
-  const sweet::rect32_t &rect
+  const sweet::point<float> &point,
+  const sweet::point<int32_t> &clip_point,
+  const sweet::size<int32_t> &clip_size
 ) noexcept {
-  render(point.x, point.y, rect);
+  render(
+    point.x,
+    point.y,
+    clip_point.x,
+    clip_point.y,
+    clip_size.width,
+    clip_size.height
+  );
 }
 
 void texture::render(
-  const sweet::fpoint32_t &point,
-  const sweet::point32_t &pos,
-  const sweet::size32_t &size
+  float x,
+  float y,
+  const sweet::rect<int32_t> &clip
 ) noexcept {
-  render(point.x, point.y, pos, size);
+  render(
+    x,
+    y,
+    clip.x,
+    clip.y,
+    clip.width,
+    clip.height
+  );
+}
+
+void texture::render(
+  const sweet::point<float> &point,
+  const sweet::rect<int32_t> &clip
+) noexcept {
+  render(
+    point.x,
+    point.y,
+    clip.x,
+    clip.y,
+    clip.width,
+    clip.height
+  );
 }
 
 texture &texture::set_alpha(uint32_t alpha) noexcept {
@@ -231,57 +329,5 @@ bool texture::operator !=(const texture &texture) const noexcept {
 
 texture::operator bool() const noexcept {
   return get_sdl_texture() != nullptr;
-}
-
-std::expected<void, std::string> texture::load_impl() noexcept {
-  if(!_renderer)
-    return std::unexpected{ "Renderer has not been created." };
-
-  if(get_sdl_texture())
-    return std::unexpected{ "The texture is already loaded." };
-
-  SDL_Surface *sdl_surface = IMG_Load(_path.c_str());
-  if(!sdl_surface)
-    return std::unexpected{ "Failed to load image." };
-
-  SDL_Texture *sdl_texture = SDL_CreateTextureFromSurface(
-    _renderer.get_sdl_renderer(),
-    sdl_surface
-  );
-  if(!sdl_texture)
-    return std::unexpected{ "Failed to convert Surface to Texture." };
-
-  _sdl_texture.reset(sdl_texture);
-  _width = sdl_surface->w;
-  _height = sdl_surface->h;
-  _byte = SDL_BYTESPERPIXEL(sdl_surface->format->format) * _width * _height;
-  SDL_FreeSurface(sdl_surface);
-
-  return{ };
-}
-
-std::expected<void, std::string> texture::unload_impl() noexcept {
-  if(!get_sdl_texture())
-    return std::unexpected{ "There are no textures to discard." };
-
-  _sdl_texture.reset();
-  _path.clear();
-  _width = 0u;
-  _height = 0u;
-  _byte = 0u;
-
-  return{ };
-}
-
-std::expected<void, std::string> texture::release_impl() noexcept  {
-  if(!get_sdl_texture())
-    return std::unexpected{ "There are no textures to discard." };
-
-  _sdl_texture.reset();
-  _width = 0u;
-  _height = 0u;
-  _byte = 0u;
-
-  return{ };
 }
 }

@@ -25,6 +25,7 @@
 #define _LIBSWEET_COMMON_COLOR_HPP
 
 #include <cstdint>
+#include <iostream>
 
 namespace sweet {
 struct color {
@@ -53,6 +54,11 @@ struct color {
   color &set_hex_argb(uint32_t color) noexcept;
   color &set_hex_rgba(uint32_t color) noexcept;
 };
+
+std::ostream &operator<<(
+  std::ostream &os,
+  const sweet::color &color
+);
 }
 
 namespace sweet::pallet {

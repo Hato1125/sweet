@@ -1,112 +1,90 @@
+#include <iostream>
+
+#include <keyboard.hpp>
+#include <gamecontroller_manager.hpp>
+#include <scene_manager.hpp>
+
 #include "main.hpp"
-#include "font_test.hpp"
-#include "frame_monitor.hpp"
-#include "texture_test.hpp"
-#include "keyboard_test.hpp"
-#include "game_controller_test.hpp"
-#include "resource_manager_test.hpp"
+#include "test.hpp"
 
-namespace sweet::test {
-sweet::app main::app{ };
-sweet::frame_monitor main::frame_monitor{ };
-std::string main::run_test_name{ };
-std::map<std::string, std::shared_ptr<sweet::test::test>> main::tests {
-  { "font_test", std::make_shared<sweet::test::font_test>() },
-  { "texture_test", std::make_shared<sweet::test::texture_test>() },
-  { "keyboard_test", std::make_shared<sweet::test::keyboard_test>() },
-  { "game_controller_test", std::make_shared<sweet::test::game_controller_test>() },
-  { "resource_manager_test", std::make_shared<sweet::test::resource_manager_test>() }
-};
+#ifdef main
+# undef main
+#endif
 
-std::expected<void, std::string> main::init(int argc, char **argv) noexcept {
-  if(tests.empty())
-    return std::unexpected{ "No tests defined." };
-
-  if(argc < 2)
-    return std::unexpected{ "No test specified." };
-  run_test_name = argv[1];
-
-  if(!tests.contains(run_test_name))
-    return std::unexpected{ "The specified test does not exist." };
-
-  if(auto result = app.init(argc, argv, { .on_inited = _init }); !result)
-    return std::unexpected{ result.error() };
-
-  app.is_auto_finish = false;
-  app.window.set_title("sweet engine test")
-    .set_max_size({ 1920, 1080 })
-    .set_min_size({ 1280, 720 })
-    .set_size(app.window.get_min_size());
-
-  frame_monitor.set_max_frame_rate(60.);
-
-  std::cout << "info > sdl_ver: " << sweet::get_sdl_version() << std::endl;
-  std::cout << "info > sdl_image_ver: " << sweet::get_sdl_image_version() << std::endl;
-  std::cout << "info > sdl_ttf_ver: " << sweet::get_sdl_ttf_version() << std::endl;
-  std::cout << "info > sweet_ver: " << sweet::get_sweet_version() << std::endl;
-
-  return{ };
-}
-
-std::expected<void, std::string> main::run() noexcept {
-  sweet::game_controller ct{ 0 };
-  app.run({
-    .loop {
-      .on_event = _event,
-      .on_update = _update,
-      .on_render = _render
-    },
-    .end {
-      .on_finishing = _finish
-    }
-  });
-  return{ };
-}
-
-void main::_init() noexcept {
-  tests[run_test_name]->init();
-}
-
-void main::_update() noexcept {
-  frame_monitor.begin();
-  sweet::keyboard::update();
-  sweet::game_controller_manager::update();
-
-  tests[run_test_name]->update();
-}
-
-void main::_render() noexcept {
-  tests[run_test_name]->render();
-  frame_monitor.end();
-}
-
-void main::_finish() noexcept {
-  tests[run_test_name]->finish();
-}
-
-void main::_event(SDL_Event &e) noexcept {
-  sweet::keyboard::update_event(e);
-  sweet::game_controller_manager::update_event(e);
-
-  switch(e.type) {
-    case SDL_KEYUP: {
-      if(e.key.keysym.sym == SDLK_ESCAPE)
-        app.end();
-    } break;
-  }
-}
+namespace test {
+sweet::app app_state::app{};
+sweet::frame app_state::monitor{};
 }
 
 int main(int argc, char **argv) {
-  if(auto result = sweet::test::main::init(argc, argv); !result) {
-    std::cerr << "test > " << result.error() << std::endl;
+  if(argc <= 1)
+    return EXIT_FAILURE;
+
+  try {
+    test::app_state::app.init(argc, argv, {
+      .on_inited = [&argv](){
+        try {
+          sweet::scene_manager::regist("test", std::make_shared<test::test_scene>(argv[1]));
+          sweet::scene_manager::change("test");
+        } catch(std::runtime_error &e) {
+          std::cerr << e.what() << std::endl;
+        }
+      }
+    });
+  } catch(std::runtime_error &e) {
+    std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
   }
 
-  if(auto result = sweet::test::main::run(); !result) {
-    std::cerr << "test > " << result.error() << std::endl;
-    return EXIT_FAILURE;
-  }
+  test::app_state::app.window
+    .enable_resize()
+    .set_size({ 1280, 720 })
+    .set_min_size({ 1280, 720 })
+    .set_max_size({ 1920, 1080 });
+
+  test::app_state::app.renderer
+    .disable_vsync();
+
+  test::app_state::monitor
+    .set_max_frame_rate(0.f)
+    .set_update_frame_rate_sec(5.f);
+
+  test::app_state::app.run({
+    .loop {
+      .on_begin = [](){
+        test::app_state::monitor.begin();
+      },
+      .on_event = [](SDL_Event &e){
+        sweet::keyboard::update_event(e);
+        sweet::gamecontroller_manager::update_event(e);
+      },
+      .on_update = [](){
+        sweet::keyboard::update();
+        sweet::gamecontroller_manager::update();
+
+        if(sweet::keyboard::is_upped(SDL_SCANCODE_ESCAPE))
+          test::app_state::app.exit();
+        else if(sweet::keyboard::is_upped(SDL_SCANCODE_Q))
+          test::app_state::app.window.maximize();
+        else if(sweet::keyboard::is_upped(SDL_SCANCODE_W))
+          test::app_state::app.window.minimize();
+        else if(sweet::keyboard::is_upped(SDL_SCANCODE_E))
+          test::app_state::app.window.restore();
+        else if(sweet::keyboard::is_upped(SDL_SCANCODE_R))
+          test::app_state::app.window.enable_resize();
+        else if(sweet::keyboard::is_upped(SDL_SCANCODE_T))
+          test::app_state::app.window.disable_resize();
+
+        sweet::scene_manager::update();
+      },
+      .on_render = [](){
+        sweet::scene_manager::render();
+      },
+      .on_end = [](){
+        test::app_state::monitor.end();
+      },
+    }
+  });
 
   return EXIT_SUCCESS;
 }

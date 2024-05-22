@@ -3,13 +3,21 @@
 
 #include <iostream>
 
+#include <scene.hpp>
 #include <keyboard.hpp>
 
-#include "test.hpp"
+namespace test {
+struct keyboard_test : public sweet::scene_element {
+  void update() override {
+    if(sweet::keyboard::is_pushing(SDL_SCANCODE_A))
+      std::cout << "Pushing \"A\"Key.\n";
 
-namespace sweet::test {
-struct keyboard_test : public sweet::test::test {
-  void update() noexcept override;
+    if(sweet::keyboard::is_pushed(SDL_SCANCODE_W))
+      std::cout << "Pushed \"W\"Key.\n";
+
+    if(sweet::keyboard::is_upped(SDL_SCANCODE_S))
+      std::cout << "Upped \"S\"Key.\n";
+  }
 };
 }
 

@@ -31,8 +31,8 @@
 #include <SDL_ttf.h>
 
 #define SWEET_MAJOR_VERSION 0
-#define SWEET_MINOR_VERSION 2
-#define SWEET_PATCHLEVEL 1
+#define SWEET_MINOR_VERSION 3
+#define SWEET_PATCHLEVEL 0
 
 namespace sweet {
 inline std::string get_sdl_version() noexcept {

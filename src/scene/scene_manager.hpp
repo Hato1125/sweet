@@ -21,36 +21,42 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_INPUT_KEYBOARD_HPP
-#define _LIBSWEET_INPUT_KEYBOARD_HPP
+#ifndef _LIBSWEET_SCENE_SCENE_MANAGER_HPP
+#define _LIBSWEET_SCENE_SCENE_MANAGER_HPP
 
-#include <array>
-#include <cstdint>
+#include <map>
+#include <string>
+#include <memory>
 
-#include <SDL_events.h>
-#include <SDL_keyboard.h>
+#include "scene.hpp"
 
 namespace sweet {
-class keyboard final {
+class scene_manager final {
+using shared_scene = std::shared_ptr<sweet::scene>;
+using shared_scene_elem = std::shared_ptr<sweet::scene_element>;
+
 public:
-  keyboard() = delete;
-  ~keyboard() = delete;
+  scene_manager() = delete;
+  ~scene_manager() = delete;
 
-  static void update() noexcept;
-  static void update_event(const SDL_Event& e) noexcept;
+  static void regist(
+    const std::string &name,
+    const shared_scene &scene
+  ) noexcept;
 
-  static bool is_pushing(SDL_Scancode key) noexcept;
-  static bool is_pushed(SDL_Scancode key) noexcept;
-  static bool is_upped(SDL_Scancode key) noexcept;
+  static void regist(
+    const std::map<const std::string, const shared_scene> &scenes
+  ) noexcept;
+
+  static void remove(const std::string &name) noexcept;
+  static void change(const std::string &name) noexcept;
+
+  static void update();
+  static void render();
 
 private:
-  static bool _is_key_pressed;
-  static bool _is_one_frame_passed;
-  static int32_t _last_down_key_code;
-
-  static std::array<int8_t, SDL_NUM_SCANCODES> _key_state;
-
-  static void _update_key_state() noexcept;
+  static std::string _current_scene_name; 
+  static std::map<std::string, shared_scene> _scenes;
 };
 }
 

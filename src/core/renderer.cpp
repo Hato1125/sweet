@@ -25,38 +25,31 @@
 
 namespace sweet {
 renderer::renderer(sweet::window &window)
-  noexcept : _sdl_renderer{ nullptr, SDL_DestroyRenderer },
-    _window{ window } {
+  noexcept : _window{ window } {
 }
 
-std::expected<void, std::string> renderer::create() noexcept {
+void renderer::create() {
   if(_sdl_renderer)
-    return std::unexpected{ "The renderer has already been created." };
+    return;
 
   if(!_window)
-    return std::unexpected{ "Window has not been created yet." };
+    throw std::runtime_error("Window has not been created yet.");
 
-  constexpr int32_t index = -1;
-  constexpr uint32_t flags = SDL_RENDERER_PRESENTVSYNC
+  _sdl_renderer.reset(SDL_CreateRenderer(
+    _window.get_sdl_window(),
+    -1,
+    SDL_RENDERER_PRESENTVSYNC
     | SDL_RENDERER_ACCELERATED
-    | SDL_RENDERER_TARGETTEXTURE;
-
-  SDL_Window *sdl_window = _window.get_sdl_window();
-  SDL_Renderer *sdl_renderer = SDL_CreateRenderer(sdl_window, index, flags);
-
-  if(!sdl_renderer)
-    return std::unexpected{ "Failed to create SDL_Renderer." };
-
-  _sdl_renderer.reset(sdl_renderer);
-  return{ };
+    | SDL_RENDERER_TARGETTEXTURE
+  ));
+  if(!_sdl_renderer)
+    throw std::runtime_error("Failed to create SDL_Renderer.");
 }
 
-std::expected<void, std::string> renderer::destroy() noexcept {
+void renderer::destroy() {
   if(!_sdl_renderer)
-    return std::unexpected{ "Renderer has not been created yet." };
-
+    throw std::runtime_error("Renderer has not been created yet.");
   _sdl_renderer.reset();
-  return{ };
 }
 
 void renderer::rendering(const std::function<void ()> &rendering) noexcept {
@@ -96,12 +89,12 @@ renderer &renderer::set_color(const sweet::color &color) noexcept {
   return *this;
 }
 
-renderer &renderer::set_scale(const sweet::fpoint32_t &scale) noexcept {
+renderer &renderer::set_scale(const sweet::point<float> &scale) noexcept {
   SDL_RenderSetScale(get_sdl_renderer(), scale.x, scale.y);
   return *this;
 }
 
-renderer &renderer::set_viewport(const sweet::rect32_t &rect) noexcept {
+renderer &renderer::set_viewport(const sweet::rect<int32_t> &rect) noexcept {
   SDL_Rect viewport{ rect.x, rect.y, rect.width, rect.height };
   SDL_RenderSetViewport(get_sdl_renderer(), &viewport);
   return *this;
@@ -119,8 +112,8 @@ sweet::color renderer::get_color() const noexcept {
   return color;
 }
 
-sweet::fpoint32_t renderer::get_scale() const noexcept {
-  sweet::fpoint32_t scale;
+sweet::point<float> renderer::get_scale() const noexcept {
+  sweet::point<float> scale;
   SDL_RenderGetScale(
     get_sdl_renderer(),
     &scale.x,
@@ -129,7 +122,7 @@ sweet::fpoint32_t renderer::get_scale() const noexcept {
   return scale;
 }
 
-sweet::rect32_t renderer::get_viewport() const noexcept {
+sweet::rect<int32_t> renderer::get_viewport() const noexcept {
   SDL_Rect viewport;
   SDL_RenderGetViewport(get_sdl_renderer(), &viewport);
 

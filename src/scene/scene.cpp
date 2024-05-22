@@ -21,41 +21,52 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#include <SDL_timer.h>
-
-#include "frame_monitor.hpp"
+#include "scene.hpp"
 
 namespace sweet {
-void frame_monitor::begin() noexcept {
-  while(!SDL_TICKS_PASSED(SDL_GetTicks(), _ticks_count + _limmit_ms));
-
-  _delta_time = (SDL_GetTicks() - _ticks_count) / 1000.;
-  _ticks_count = SDL_GetTicks();
+void scene_element::active() {
 }
 
-void frame_monitor::end() noexcept {
-  _one_sec_timer += _delta_time;
-  ++_frame_count;
-  if(_one_sec_timer >= 1.0) {
-    _frame_rate = _frame_count;
-    _frame_count = 0;
-    _one_sec_timer = 0.;
+void scene_element::inactive() {
+}
+
+void scene_element::update() {
+}
+
+void scene_element::render() {
+}
+
+void scene::active() {
+  for(auto &element : elements)
+    element->active();
+}
+
+void scene::inactive() {
+  for(auto &element : elements)
+    element->inactive();
+}
+
+void scene::update() {
+  if(state == scene_state::idle
+    || state == scene_state::inactive)
+    return;
+
+  for(auto &element : elements) {
+    if(element->state == scene_state::idle
+      || element->state == scene_state::inactive)
+      continue;
+    element->update();
   }
 }
 
-void frame_monitor::set_max_frame_rate(double fps) noexcept {
-  _limmit_ms = 1000. / fps;
-}
+void scene::render() {
+  if(state == scene_state::inactive)
+    return;
 
-float frame_monitor::get_delta_time_f32() const noexcept {
-  return static_cast<float>(_delta_time);
-}
-
-double frame_monitor::get_delta_time_f64() const noexcept {
-  return _delta_time;
-}
-
-int32_t frame_monitor::get_frame_rate() const noexcept {
-  return _frame_rate;
+  for(auto &element : elements) {
+    if(element->state == scene_state::inactive)
+      continue;
+    element->render();
+  }
 }
 }

@@ -21,30 +21,14 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_CORE_FRAME_MONITOR_HPP
-#define _LIBSWEET_CORE_FRAME_MONITOR_HPP
-
-#include <cstdint>
+#ifndef _LIBSWEET_RESOURCE_RESOURCE_HPP
+#define _LIBSWEET_RESOURCE_RESOURCE_HPP
 
 namespace sweet {
-class frame_monitor {
-public:
-  void begin() noexcept;
-  void end() noexcept;
-
-  void set_max_frame_rate(double fps) noexcept;
-
-  float get_delta_time_f32() const noexcept;
-  double get_delta_time_f64() const noexcept;
-  int32_t get_frame_rate() const noexcept;
-
-private:
-  double _limmit_ms;
-  double _delta_time;
-  double _one_sec_timer;
-  int32_t _ticks_count;
-  int32_t _frame_count;
-  int32_t _frame_rate;
+struct resource {
+  virtual void load() = 0;
+  virtual void unload() = 0;
+  virtual void release() = 0;
 };
 }
 

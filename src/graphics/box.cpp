@@ -39,11 +39,11 @@ void box::border_render(float x, float y) noexcept {
   _render_rect<SDL_RenderDrawRectF>(x, y);
 }
 
-void box::fill_render(const sweet::fpoint32_t &pos) noexcept {
+void box::fill_render(const sweet::point<float> &pos) noexcept {
   _render_rect<SDL_RenderFillRectF>(pos.x, pos.y);
 }
 
-void box::border_render(const sweet::fpoint32_t &pos) noexcept {
+void box::border_render(const sweet::point<float> &pos) noexcept {
   _render_rect<SDL_RenderDrawRectF>(pos.x, pos.y);
 }
 
@@ -52,7 +52,7 @@ box &box::set_color(const sweet::color &color) noexcept {
   return *this;
 }
 
-box &box::set_size(const sweet::fsize32_t &size) noexcept {
+box &box::set_size(const sweet::size<float> &size) noexcept {
   _width = size.width;
   _height = size.height;
   return *this;
@@ -72,7 +72,7 @@ sweet::color box::get_color() const noexcept {
   return _color;
 }
 
-sweet::fsize32_t box::get_size() const noexcept {
+sweet::size<float> box::get_size() const noexcept {
   return { _width, _height };
 }
 
@@ -84,16 +84,16 @@ float box::get_height() const noexcept {
   return _height;
 }
 
-template <int RenderRect(SDL_Renderer *, const SDL_FRect*)>
+template <int RenderRect(SDL_Renderer*, const SDL_FRect*)>
 void box::_render_rect(float x, float y) noexcept {
   auto color = _renderer.get_color();
 
-   SDL_FRect rect {
-     .x = x,
-     .y = y,
-     .w = static_cast<float>(_width),
-     .h = static_cast<float>(_height),
-   };
+  SDL_FRect rect {
+    .x = x,
+    .y = y,
+    .w = static_cast<float>(_width),
+    .h = static_cast<float>(_height),
+  };
 
    _renderer.set_color(_color);
    RenderRect(_renderer.get_sdl_renderer(), &rect);

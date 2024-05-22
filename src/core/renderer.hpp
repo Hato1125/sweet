@@ -24,9 +24,7 @@
 #ifndef _LIBSWEET_CORE_RENDERER_HPP
 #define _LIBSWEET_CORE_RENDERER_HPP
 
-#include <string>
 #include <memory>
-#include <expected>
 #include <functional>
 
 #include <SDL_render.h>
@@ -41,8 +39,8 @@ class renderer {
 public:
   renderer(sweet::window &window) noexcept;
 
-  std::expected<void, std::string> create() noexcept;
-  std::expected<void, std::string> destroy() noexcept;
+  void create();
+  void destroy();
 
   void rendering(const std::function<void()> &rendering) noexcept;
 
@@ -52,12 +50,12 @@ public:
   renderer &enable_vsync() noexcept;
   renderer &disable_vsync() noexcept;
   renderer &set_color(const sweet::color &color) noexcept;
-  renderer &set_scale(const sweet::fpoint32_t &scale) noexcept;
-  renderer &set_viewport(const sweet::rect32_t &rect) noexcept;
+  renderer &set_scale(const sweet::point<float> &scale) noexcept;
+  renderer &set_viewport(const sweet::rect<int32_t> &rect) noexcept;
 
   sweet::color get_color() const noexcept;
-  sweet::fpoint32_t get_scale() const noexcept;
-  sweet::rect32_t get_viewport() const noexcept;
+  sweet::point<float> get_scale() const noexcept;
+  sweet::rect<int32_t> get_viewport() const noexcept;
 
   [[nodiscard]]
   SDL_Renderer *get_sdl_renderer() const noexcept;
@@ -69,7 +67,10 @@ public:
 
 private:
   sweet::window &_window;
-  std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> _sdl_renderer;
+  std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> _sdl_renderer {
+    nullptr,
+    SDL_DestroyRenderer
+  };
 };
 }
 

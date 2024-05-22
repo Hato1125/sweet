@@ -21,36 +21,36 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_INPUT_KEYBOARD_HPP
-#define _LIBSWEET_INPUT_KEYBOARD_HPP
+#ifndef _LIBSWEET_CORE_FRAME_MONITOR_HPP
+#define _LIBSWEET_CORE_FRAME_MONITOR_HPP
 
-#include <array>
 #include <cstdint>
 
-#include <SDL_events.h>
-#include <SDL_keyboard.h>
-
 namespace sweet {
-class keyboard final {
+class frame {
 public:
-  keyboard() = delete;
-  ~keyboard() = delete;
+  frame() noexcept;
 
-  static void update() noexcept;
-  static void update_event(const SDL_Event& e) noexcept;
+  void begin() noexcept;
+  void end() noexcept;
 
-  static bool is_pushing(SDL_Scancode key) noexcept;
-  static bool is_pushed(SDL_Scancode key) noexcept;
-  static bool is_upped(SDL_Scancode key) noexcept;
+  frame &set_max_frame_rate(float fps) noexcept;
+  frame &set_update_frame_rate_sec(float sec) noexcept;
+
+  float get_frame_sec() const noexcept;
+  int32_t get_frame_rate() const noexcept;
 
 private:
-  static bool _is_key_pressed;
-  static bool _is_one_frame_passed;
-  static int32_t _last_down_key_code;
+  float _frame_sec;
+  float _limmit_sec;
+  float _one_sec_timer;
+  float _update_sec_timer;
+  float _update_frame_rate_sec;
 
-  static std::array<int8_t, SDL_NUM_SCANCODES> _key_state;
-
-  static void _update_key_state() noexcept;
+  int32_t _ticks_count;
+  int32_t _frame_count;
+  int32_t _frame_rate_buf;
+  int32_t _frame_rate;
 };
 }
 

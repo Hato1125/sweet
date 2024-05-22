@@ -59,4 +59,17 @@ color &color::set_hex_rgba(uint32_t color) noexcept {
   a = static_cast<uint8_t>((color >> 0) & 0xff);
   return *this;
 }
+
+std::ostream &operator<<(
+  std::ostream &os,
+  const sweet::color &color
+) {
+  os << "{"
+     << " r: " << static_cast<int>(color.r) << ","
+     << " g: " << static_cast<int>(color.g) << ","
+     << " b: " << static_cast<int>(color.b) << ","
+     << " a: " << static_cast<int>(color.a) << " "
+     << "}";
+  return os;
+}
 }

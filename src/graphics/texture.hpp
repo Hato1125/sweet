@@ -62,28 +62,49 @@ public:
   texture(sweet::renderer &renderer, const std::filesystem::path &path) noexcept;
   texture(sweet::renderer &renderer, SDL_Surface *sdl_surface) noexcept;
 
-  void render(
-    float x,
-    float y,
-    const sweet::rect32_t &rect = { }
-  ) noexcept;
+  void load() override;
+  void unload() override;
+  void release() override;
 
   void render(
     float x,
     float y,
-    const sweet::point32_t &pos,
-    const sweet::size32_t &size
+    int32_t rect_x = 0,
+    int32_t rect_y = 0,
+    int32_t rect_width = 0,
+    int32_t rect_height = 0
   ) noexcept;
 
   void render(
-    const sweet::fpoint32_t &point,
-    const sweet::rect32_t &rect = { }
+    const sweet::point<float> &point,
+    int32_t rect_x = 0,
+    int32_t rect_y = 0,
+    int32_t rect_width = 0,
+    int32_t rect_height = 0
   ) noexcept;
 
   void render(
-    const sweet::fpoint32_t &point,
-    const sweet::point32_t &pos,
-    const sweet::size32_t &size
+    float x,
+    float y,
+    const sweet::point<int32_t> &clip_point,
+    const sweet::size<int32_t> &clip_size
+  ) noexcept;
+
+  void render(
+    const sweet::point<float> &point,
+    const sweet::point<int32_t> &clip_point,
+    const sweet::size<int32_t> &clip_size
+  ) noexcept;
+
+  void render(
+    float x,
+    float y,
+    const sweet::rect<int32_t> &clip
+  ) noexcept;
+
+  void render(
+    const sweet::point<float> &point,
+    const sweet::rect<int32_t> &clip
   ) noexcept;
 
   texture &set_alpha(uint32_t alpha) noexcept;
@@ -110,11 +131,6 @@ public:
 
   explicit operator bool() const noexcept;
 
-protected:
-  std::expected<void, std::string> load_impl() noexcept override;
-  std::expected<void, std::string> unload_impl() noexcept override;
-  std::expected<void, std::string> release_impl() noexcept override;
-
 private:
   sweet::renderer &_renderer;
   std::filesystem::path _path;
@@ -124,7 +140,6 @@ private:
   uint32_t _width;
   uint32_t _height;
 
-private:
   static SDL_Rect _s_clip_rect;
   static SDL_FRect _s_render_rect;
   static SDL_FPoint _s_rotation_point;

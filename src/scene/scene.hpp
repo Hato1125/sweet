@@ -21,26 +21,39 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#ifndef _LIBSWEET_RESOURCE_RESOURCE_HPP
-#define _LIBSWEET_RESOURCE_RESOURCE_HPP
+#ifndef _LIBSWEET_SCENE_SCENE_HPP
+#define _LIBSWEET_SCENE_SCENE_HPP
 
-#include <mutex>
-#include <string>
-#include <expected>
+#include <vector>
+#include <memory>
 
 namespace sweet {
-class resource {
+enum class scene_state {
+  idle,
+  active,
+  inactive
+};
+
+struct scene_element {
+  scene_state state{ scene_state::active };
+
+  virtual void active();
+  virtual void inactive();
+  virtual void update();
+  virtual void render();
+};
+
+class scene {
 public:
-  std::expected<void, std::string> load() noexcept;
-  std::expected<void, std::string> unload() noexcept;
-  std::expected<void, std::string> release() noexcept;
+  scene_state state{ scene_state::inactive };
+
+  virtual void active();
+  virtual void inactive();
+  virtual void update();
+  virtual void render();
 
 protected:
-  std::mutex process_mutex;
-
-  virtual std::expected<void, std::string> load_impl() noexcept = 0;
-  virtual std::expected<void, std::string> unload_impl() noexcept = 0;
-  virtual std::expected<void, std::string> release_impl() noexcept = 0;
+  std::vector<std::shared_ptr<scene_element>> elements;
 };
 }
 

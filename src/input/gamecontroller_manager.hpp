@@ -21,21 +21,34 @@
 /* SOFTWARE.                                                                      */
 /*--------------------------------------------------------------------------------*/
 
-#include "resource.hpp"
+#ifndef _LIBSWEET_INPUT_GAME_CONTROLLER_MANAGER_HPP
+#define _LIBSWEET_INPUT_GAME_CONTROLLER_MANAGER_HPP
+
+#include <cstdint>
+#include <vector>
+
+#include "gamecontroller.hpp"
 
 namespace sweet {
-std::expected<void, std::string> resource::load() noexcept {
-  std::lock_guard<std::mutex> lock{ process_mutex };
-  return load_impl();
+class gamecontroller_manager final {
+using gamecontroller_it = std::vector<sweet::gamecontroller>::iterator;
+
+public:
+  static void update() noexcept;
+  static void update_event(const SDL_Event &e) noexcept;
+
+  static sweet::gamecontroller &get(int32_t index) noexcept;
+  static gamecontroller_it begin() noexcept;
+  static gamecontroller_it end() noexcept;
+
+private:
+  static sweet::gamecontroller _empty_controller;
+  static std::vector<sweet::gamecontroller> _controllers;
+
+  static void _add_gamecontroller(int32_t index) noexcept;
+  static void _remove_gamecontroller(int32_t index) noexcept;
+  static gamecontroller_it _find_joystick_it(int32_t index) noexcept;
+};
 }
 
-std::expected<void, std::string> resource::unload() noexcept {
-  std::lock_guard<std::mutex> lock{ process_mutex };
-  return unload_impl();
-}
-
-std::expected<void, std::string> resource::release() noexcept {
-  std::lock_guard<std::mutex> lock{ process_mutex };
-  return release_impl();
-}
-}
+#endif

@@ -26,35 +26,36 @@
 
 #include <string>
 #include <memory>
-#include <expected>
 
 #include <SDL_video.h>
 
 #include "point.hpp"
 #include "size.hpp"
-#include "rect.hpp"
 
 namespace sweet {
 class window {
 public:
-  window() noexcept;
-
-  std::expected<void, std::string> create() noexcept;
-  std::expected<void, std::string> destroy() noexcept;
+  void create();
+  void destroy();
 
   window &show() noexcept;
   window &hide() noexcept;
+  window &enable_resize() noexcept;
+  window &disable_resize() noexcept;
+  window &maximize() noexcept;
+  window &minimize() noexcept;
+  window &restore() noexcept;
   window &set_title(const std::string &title) noexcept;
-  window &set_pos(const sweet::point32_t &pos) noexcept;
-  window &set_size(const sweet::usize32_t &size) noexcept;
-  window &set_min_size(const sweet::usize32_t &size) noexcept;
-  window &set_max_size(const sweet::usize32_t &size) noexcept;
+  window &set_pos(const sweet::point<int32_t> &pos) noexcept;
+  window &set_size(const sweet::size<uint32_t> &size) noexcept;
+  window &set_min_size(const sweet::size<uint32_t> &size) noexcept;
+  window &set_max_size(const sweet::size<uint32_t> &size) noexcept;
 
   std::string get_title() const noexcept;
-  sweet::point32_t get_pos() const noexcept;
-  sweet::usize32_t get_size() const noexcept;
-  sweet::usize32_t get_min_size() const noexcept;
-  sweet::usize32_t get_max_size() const noexcept;
+  sweet::point<int32_t> get_pos() const noexcept;
+  sweet::size<uint32_t> get_size() const noexcept;
+  sweet::size<uint32_t> get_min_size() const noexcept;
+  sweet::size<uint32_t> get_max_size() const noexcept;
 
   [[nodiscard]]
   SDL_Window *get_sdl_window() const noexcept;
@@ -65,7 +66,10 @@ public:
   explicit operator bool() const noexcept;
 
 private:
-  std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> _sdl_window;
+  std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> _sdl_window {
+    nullptr,
+    SDL_DestroyWindow
+  };
 };
 }
 
