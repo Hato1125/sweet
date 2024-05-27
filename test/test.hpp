@@ -11,7 +11,6 @@
 #include "font_test.hpp"
 #include "texture_test.hpp"
 #include "keyboard_test.hpp"
-#include "gamecontroller_test.hpp"
 
 namespace test {
 class test_scene : public sweet::scene {
@@ -22,7 +21,6 @@ class test_scene : public sweet::scene {
       { "Font", std::make_shared<test::font_test>() },
       { "Texture", std::make_shared<test::texture_test>() },
       { "Keyboard", std::make_shared<test::keyboard_test>() },
-      { "GameController", std::make_shared<test::gamecontroller_test>() },
     };
 
     if(!tests.contains(name))

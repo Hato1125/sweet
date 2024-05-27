@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include <keyboard.hpp>
-#include <gamecontroller_manager.hpp>
 #include <scene_manager.hpp>
 
 #include "main.hpp"
@@ -56,11 +55,9 @@ int main(int argc, char **argv) {
       },
       .on_event = [](SDL_Event &e){
         sweet::keyboard::update_event(e);
-        sweet::gamecontroller_manager::update_event(e);
       },
       .on_update = [](){
         sweet::keyboard::update();
-        sweet::gamecontroller_manager::update();
 
         if(sweet::keyboard::is_upped(SDL_SCANCODE_ESCAPE))
           test::app_state::app.exit();
