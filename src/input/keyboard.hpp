@@ -37,7 +37,7 @@ public:
   ~keyboard() = delete;
 
   static void update() noexcept;
-  static void update_event(const SDL_Event& e) noexcept;
+  static void update_event(const SDL_Event &e) noexcept;
 
   static bool is_pushing(SDL_Scancode key) noexcept;
   static bool is_pushed(SDL_Scancode key) noexcept;
@@ -46,9 +46,8 @@ public:
 private:
   static bool _is_key_pressed;
   static bool _is_one_frame_passed;
-  static int32_t _last_down_key_code;
-
-  static std::array<int8_t, SDL_NUM_SCANCODES> _key_state;
+  static std::int32_t _last_down_key_code;
+  static std::array<std::int8_t, SDL_NUM_SCANCODES> _key_state;
 
   static void _update_key_state() noexcept;
 };

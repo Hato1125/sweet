@@ -26,9 +26,8 @@
 namespace sweet {
 bool keyboard::_is_key_pressed{ false };
 bool keyboard::_is_one_frame_passed{ false };
-int32_t keyboard::_last_down_key_code{ SDLK_UNKNOWN };
-
-std::array<int8_t, SDL_NUM_SCANCODES> keyboard::_key_state{ };
+std::int32_t keyboard::_last_down_key_code{ SDLK_UNKNOWN };
+std::array<std::int8_t, SDL_NUM_SCANCODES> keyboard::_key_state{ };
 
 void keyboard::update() noexcept {
   if(_is_key_pressed) {
@@ -45,13 +44,12 @@ void keyboard::update() noexcept {
 void keyboard::update_event(const SDL_Event &e) noexcept {
   switch(e.type) {
     case SDL_KEYDOWN: {
-      int32_t now_push_key_code = e.key.keysym.sym;
-      if(_last_down_key_code == now_push_key_code)
-        return;
-
-      _last_down_key_code = now_push_key_code;
-      _is_key_pressed = true;
-      _update_key_state();
+      std::int32_t pushing_key_code = e.key.keysym.sym;
+      if(_last_down_key_code != pushing_key_code) {
+        _last_down_key_code = pushing_key_code;
+        _is_key_pressed = true;
+        _update_key_state();
+      }
     } break;
     case SDL_KEYUP: {
       _is_key_pressed = true;
@@ -74,11 +72,11 @@ bool keyboard::is_upped(SDL_Scancode key) noexcept {
 }
 
 void keyboard::_update_key_state() noexcept {
-  const uint8_t *sdl_key_state = SDL_GetKeyboardState(nullptr);
-  for(size_t i = 0; i < _key_state.size(); ++i) {
+  const std::uint8_t *sdl_key_state = SDL_GetKeyboardState(nullptr);
+  for(std::size_t i = 0; i < _key_state.size(); ++i) {
     _key_state[i] = sdl_key_state[i]
-      ? _key_state[i] = is_pushing(static_cast<SDL_Scancode>(i)) ? 1 : 2
-      : _key_state[i] = is_pushing(static_cast<SDL_Scancode>(i)) ? -1 : 0;
+      ? is_pushing(static_cast<SDL_Scancode>(i)) ? 1 : 2
+      : is_pushing(static_cast<SDL_Scancode>(i)) ? -1 : 0;
   }
 }
 }
